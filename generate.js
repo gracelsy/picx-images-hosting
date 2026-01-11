@@ -1,420 +1,167 @@
 const fs = require("fs");
 const path = require("path");
 
-const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
-const PAGE_SIZE = 24;
+const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp)$/i;
+const ROOT = process.cwd();
 
-/* ================= 扫描图片 ================= */
+/* ---------- 扫描图片 ---------- */
+function scan(dir, base = "") {
+  let list = [];
+  for (const file of fs.readdirSync(dir)) {
+    if (file.startsWith(".")) continue;
+    const full = path.join(dir, file);
+    const rel = path.join(base, file).replace(/\\/g, "/");
+    const stat = fs.statSync(full);
 
-function walk(dir, base = "") {
-  let res = [];
-  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (e.name.startsWith(".")) continue;
-
-    const full = path.join(dir, e.name);
-    const rel = path.join(base, e.name).replace(/\\/g, "/");
-
-    if (e.isDirectory()) {
-      res = res.concat(walk(full, rel));
-    } else if (IMAGE_EXT.test(e.name)) {
-      const stat = fs.statSync(full);
-      res.push({
+    if (stat.isDirectory()) {
+      list = list.concat(scan(full, rel));
+    } else if (IMAGE_EXT.test(file)) {
+      list.push({
         path: rel,
-        dir: base || "/",
-        name: e.name,
-        size: stat.size
+        name: file,
+        size: stat.size,
+        mtime: stat.mtimeMs,
       });
     }
   }
-  return res;
+  return list;
 }
 
-const images = walk(".")
-  .filter(i => !["index.html", "image.html", "images.json"].includes(i.path))
-  .sort((a, b) => a.path.localeCompare(b.path));
-
+const images = scan(ROOT).sort((a, b) => a.path.localeCompare(b.path));
 fs.writeFileSync("images.json", JSON.stringify(images, null, 2));
 
-/* ================= 目录树 ================= */
-
+/* ---------- 目录树 ---------- */
 function buildTree(list) {
   const tree = {};
-  for (const i of list) {
-    const parts = i.path.split("/");
-    let cur = tree;
-    for (const p of parts.slice(0, -1)) {
-      cur[p] = cur[p] || {};
-      cur = cur[p];
-    }
-  }
+  list.forEach(img => {
+    const parts = img.path.split("/");
+    let node = tree;
+    parts.forEach((p, i) => {
+      node[p] = node[p] || (i === parts.length - 1 ? img : {});
+      node = node[p];
+    });
+  });
   return tree;
 }
 
 const tree = buildTree(images);
 
-/* ================= index.html ================= */
+/* ---------- HTML 公共 ---------- */
+const baseStyle = `
+body{margin:0;font-family:system-ui;background:#0d1117;color:#c9d1d9}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+button{cursor:pointer}
+`;
 
-const indexHtml = `<!DOCTYPE html>
-<html lang="zh-CN">
+function treeHTML(node, prefix = "") {
+  return Object.entries(node).map(([k, v]) => {
+    if (v.path) {
+      return `<div class="file">
+        <a href="image/?path=${encodeURIComponent(v.path)}">${k}</a>
+      </div>`;
+    }
+    return `<details open>
+      <summary>${k}</summary>
+      <div class="dir">${treeHTML(v, prefix + k + "/")}</div>
+    </details>`;
+  }).join("");
+}
+
+/* ---------- index.html ---------- */
+const indexHTML = `
+<!doctype html>
+<html>
 <head>
-<meta charset="UTF-8">
-<title>图片库</title>
-
+<meta charset="utf-8"/>
+<title>Image Hosting</title>
 <style>
-:root {
-  --bg:#f6f7f8;
-  --panel:#fff;
-  --border:#e5e7eb;
-  --text:#111827;
-  --muted:#6b7280;
-  --primary:#1677ff;
-  --radius:14px;
-}
-
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui;
-  background:var(--bg);
-  color:var(--text);
-}
-
-.container{display:flex;height:100vh}
-
-/* ===== 目录树 ===== */
-
-.sidebar{
-  width:260px;
-  background:var(--panel);
-  border-right:1px solid var(--border);
-  padding:14px 12px;
-  overflow:auto;
-}
-
-.tree ul{list-style:none;padding-left:14px;margin:6px 0}
-.tree li{font-size:14px}
-
-.node{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  padding:4px 6px;
-  border-radius:6px;
-}
-.node:hover{background:#f3f4f6}
-
-.arrow{
-  width:14px;
-  cursor:pointer;
-  transition:transform .2s ease;
-  color:var(--muted);
-}
-.arrow.open{transform:rotate(90deg)}
-
-.label{cursor:pointer}
-.label.active{color:var(--primary);font-weight:600}
-
-.children{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .25s ease;
-}
-.children.open{max-height:600px}
-
-/* ===== 主区域 ===== */
-
-.main{flex:1;padding:24px 28px;overflow:auto}
-
-.breadcrumb{
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:16px;
-}
-
-.toolbar{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:18px;
-}
-.toolbar input{
-  width:260px;
-  padding:8px 10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-}
-
-/* ===== 图片 ===== */
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:18px;
-}
-
-.card{
-  background:var(--panel);
-  border-radius:var(--radius);
-  overflow:hidden;
-  box-shadow:0 6px 20px rgba(0,0,0,.06);
-  transition:.18s;
-}
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 12px 28px rgba(0,0,0,.12);
-}
-
-.card img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  display:block;
-}
-
-.meta{padding:10px 12px;font-size:13px}
-.meta .name{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.meta .size{color:var(--muted)}
-
-/* ===== 分页 ===== */
-
-.pagination{
-  margin:28px 0 10px;
-  text-align:center;
-}
-.pagination button{
-  min-width:34px;
-  margin:0 4px;
-  padding:6px 10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:var(--panel);
-}
-.pagination button:disabled{
-  background:var(--primary);
-  color:#fff;
-  border-color:var(--primary);
-}
+${baseStyle}
+.layout{display:flex;height:100vh}
+.sidebar{width:260px;overflow:auto;border-right:1px solid #30363d;padding:10px}
+.main{flex:1;overflow:auto;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.card{background:#161b22;border-radius:10px;padding:10px}
+.card img{border-radius:6px}
+.name{font-size:12px;margin-top:6px;word-break:break-all}
 </style>
 </head>
-
 <body>
-<div class="container">
-  <div class="sidebar">
-    <div class="tree" id="tree"></div>
-  </div>
-
-  <div class="main">
-    <div class="breadcrumb" id="breadcrumb"></div>
-
-    <div class="toolbar">
-      <input id="search" placeholder="搜索文件名">
+<div class="layout">
+  <aside class="sidebar">${treeHTML(tree)}</aside>
+  <main class="main">
+    <div class="grid">
+      ${images.map(i => `
+      <div class="card">
+        <a href="image/?path=${encodeURIComponent(i.path)}">
+          <img src="${i.path}" loading="lazy"/>
+        </a>
+        <div class="name">${i.name}</div>
+      </div>`).join("")}
     </div>
+  </main>
+</div>
+</body>
+</html>
+`;
 
-    <div class="grid" id="grid"></div>
-    <div class="pagination" id="pager"></div>
+fs.writeFileSync("index.html", indexHTML);
+
+/* ---------- image/index.html ---------- */
+fs.mkdirSync("image", { recursive: true });
+
+const imageHTML = `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Image</title>
+<style>
+${baseStyle}
+.viewer{display:flex;flex-direction:column;align-items:center;padding:20px}
+.nav{margin:10px}
+.info{font-size:13px;opacity:.7}
+</style>
+</head>
+<body>
+<div class="viewer">
+  <div class="nav">
+    <button onclick="prev()">←</button>
+    <button onclick="next()">→</button>
+    <button onclick="history.back()">返回</button>
   </div>
+  <img id="img"/>
+  <div class="info" id="info"></div>
 </div>
 
 <script>
-const images=${JSON.stringify(images)};
-const tree=${JSON.stringify(tree)};
-const PAGE=${PAGE_SIZE};
+const images = ${JSON.stringify(images)};
+const q = new URLSearchParams(location.search);
+const path = q.get("path");
+const idx = images.findIndex(i=>i.path===path);
+const img = document.getElementById("img");
+const info = document.getElementById("info");
 
-/* ===== URL 状态 ===== */
-
-function getQuery(){
-  const p=new URLSearchParams(location.search);
-  return{
-    dir:p.get("dir")||"/",
-    page:+p.get("page")||1,
-    q:p.get("q")||""
-  }
-}
-function setQuery(s,r=false){
-  const p=new URLSearchParams();
-  if(s.dir!=="/")p.set("dir",s.dir);
-  if(s.page>1)p.set("page",s.page);
-  if(s.q)p.set("q",s.q);
-  history[r?"replaceState":"pushState"](s,"","?"+p.toString());
+if(idx>=0){
+  img.src = path;
+  img.onload=()=>info.textContent =
+    images[idx].name + " | " +
+    img.naturalWidth+"×"+img.naturalHeight+" | " +
+    (images[idx].size/1024).toFixed(1)+"KB";
 }
 
-/* ===== 初始化 ===== */
+function prev(){ if(idx>0) location.href="image/?path="+encodeURIComponent(images[idx-1].path); }
+function next(){ if(idx<images.length-1) location.href="image/?path="+encodeURIComponent(images[idx+1].path); }
 
-const init=getQuery();
-let dir=init.dir;
-let page=init.page;
-let keyword=init.q;
-
-/* ===== 目录树 ===== */
-
-function renderTree(node,base=""){
-  let html="<ul>";
-  for(const k in node){
-    const p=base?base+"/"+k:k;
-    const has=Object.keys(node[k]).length;
-    html+=\`
-      <li>
-        <div class="node">
-          <span class="arrow \${has?"":"hidden"}" onclick="toggle(this)">▶</span>
-          <span class="label" onclick="setDir('\${p}',this)">\${k}</span>
-        </div>
-        <div class="children">\${has?renderTree(node[k],p):""}</div>
-      </li>\`;
-  }
-  return html+"</ul>";
+document.onkeydown=e=>{
+  if(e.key==="ArrowLeft")prev();
+  if(e.key==="ArrowRight")next();
 }
-
-document.getElementById("tree").innerHTML=renderTree(tree);
-
-/* ===== 行为 ===== */
-
-function toggle(el){
-  el.classList.toggle("open");
-  el.parentElement.nextElementSibling.classList.toggle("open");
-}
-
-function setDir(d,el){
-  dir=d;page=1;
-  document.querySelectorAll(".label").forEach(e=>e.classList.remove("active"));
-  el.classList.add("active");
-  setQuery({dir,page,q:keyword});
-  render();
-}
-
-document.getElementById("search").value=keyword;
-document.getElementById("search").oninput=e=>{
-  keyword=e.target.value.toLowerCase();
-  page=1;
-  setQuery({dir,page,q:keyword});
-  render();
-};
-
-window.onpopstate=e=>{
-  const s=e.state||getQuery();
-  dir=s.dir;page=s.page;keyword=s.q;
-  document.getElementById("search").value=keyword;
-  render();
-};
-
-/* ===== 渲染 ===== */
-
-function render(){
-  const list=images.filter(i=>
-    (dir==="/" ? i.dir==="/" : i.dir===dir) &&
-    i.name.toLowerCase().includes(keyword)
-  );
-  const total=Math.ceil(list.length/PAGE);
-  const data=list.slice((page-1)*PAGE,page*PAGE);
-
-  document.getElementById("breadcrumb").innerText="首页 / "+dir;
-  document.getElementById("grid").innerHTML=data.map(i=>\`
-    <div class="card">
-      <a href="image.html?path=\${encodeURIComponent(i.path)}">
-        <img src="\${i.path}" loading="lazy">
-      </a>
-      <div class="meta">
-        <div class="name">\${i.name}</div>
-        <div class="size">\${(i.size/1024).toFixed(1)} KB</div>
-      </div>
-    </div>\`).join("");
-
-  document.getElementById("pager").innerHTML=
-    Array.from({length:total},(_,i)=>\`
-      <button onclick="page=\${i+1};setQuery({dir,page,q:keyword});render()"
-      \${page===i+1?"disabled":""}>\${i+1}</button>\`).join("");
-}
-
-setQuery({dir,page,q:keyword},true);
-render();
 </script>
 </body>
-</html>`;
+</html>
+`;
 
-fs.writeFileSync("index.html", indexHtml);
+fs.writeFileSync("image/index.html", imageHTML);
 
-/* ================= image.html ================= */
-
-const imageHtml = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>图片详情</title>
-<style>
-body{
-  margin:0;
-  padding:32px;
-  background:#f6f7f8;
-  font-family:system-ui;
-}
-.wrapper{max-width:1100px;margin:auto}
-.breadcrumb{color:#6b7280;margin-bottom:16px}
-.viewer{
-  background:#fff;
-  padding:24px;
-  border-radius:18px;
-  box-shadow:0 12px 30px rgba(0,0,0,.08);
-}
-.viewer img{
-  max-width:100%;
-  max-height:70vh;
-  display:block;
-  margin:auto;
-  border-radius:12px;
-}
-.info{margin-top:16px;font-size:14px;color:#374151}
-.actions{margin-top:18px}
-.actions button{
-  padding:8px 14px;
-  border-radius:10px;
-  border:1px solid #e5e7eb;
-  background:#fff;
-}
-</style>
-</head>
-
-<body>
-<div class="wrapper">
-  <div class="breadcrumb" id="bc"></div>
-  <div class="viewer">
-    <img id="img">
-    <div class="info" id="info"></div>
-    <div class="actions">
-      <button id="prev">上一张</button>
-      <button id="next">下一张</button>
-      <button onclick="history.back()">返回</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const images=${JSON.stringify(images)};
-const p=new URLSearchParams(location.search).get("path");
-const idx=images.findIndex(i=>i.path===p);
-const img=document.getElementById("img");
-
-img.src=p;
-img.onload=()=>{
-  const i=images[idx];
-  document.getElementById("info").innerHTML=
-    "文件名："+i.name+
-    "<br>路径："+p+
-    "<br>分辨率："+img.naturalWidth+" × "+img.naturalHeight+
-    "<br>大小："+(i.size/1024).toFixed(1)+" KB"+
-    "<br><button onclick=\\"navigator.clipboard.writeText(location.origin+'/"+p+"')\\">复制直链</button>";
-};
-
-document.getElementById("prev").onclick=()=>{
-  if(idx>0)location.href="image.html?path="+encodeURIComponent(images[idx-1].path);
-};
-document.getElementById("next").onclick=()=>{
-  if(idx<images.length-1)location.href="image.html?path="+encodeURIComponent(images[idx+1].path);
-};
-document.getElementById("bc").innerText="首页 / "+p;
-</script>
-</body>
-</html>`;
-
-fs.writeFileSync("image.html", imageHtml);
+console.log("✔ Site generated");
