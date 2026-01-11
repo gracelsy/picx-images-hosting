@@ -3,22 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <title>图片列表</title>
+
 <style>
-body { font-family: system-ui; padding: 20px; background: #f5f5f5; }
-input { padding: 8px; width: 300px; max-width: 100%; }
+body {
+  font-family: system-ui, -apple-system;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+h1 {
+  margin-bottom: 12px;
+}
+
+input {
+  padding: 8px 10px;
+  width: 320px;
+  max-width: 100%;
+  font-size: 14px;
+}
+
 .grid {
-  margin-top: 16px;
+  margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
 }
-.card { background: #fff; padding: 10px; border-radius: 8px; }
-img { width: 100%; border-radius: 4px; }
-button { width: 100%; margin-top: 6px; cursor: pointer; }
-.pagination { margin-top: 20px; }
-.pagination button { margin-right: 6px; }
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #eee;
+}
+
+.meta {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filename {
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.filename:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-size: 12px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.pagination {
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
 </style>
 </head>
+
 <body>
 
 <h1>图片列表</h1>
@@ -34,7 +103,7 @@ let images = [];
 let filtered = [];
 let page = 1;
 
-fetch('images.json')
+fetch("images.json")
   .then(r => r.json())
   .then(data => {
     images = data;
@@ -42,7 +111,7 @@ fetch('images.json')
     render();
   });
 
-document.getElementById('search').addEventListener('input', e => {
+document.getElementById("search").addEventListener("input", e => {
   const q = e.target.value.toLowerCase();
   filtered = images.filter(f => f.toLowerCase().includes(q));
   page = 1;
@@ -50,8 +119,8 @@ document.getElementById('search').addEventListener('input', e => {
 });
 
 function render() {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
   const start = (page - 1) * PAGE_SIZE;
   const items = filtered.slice(start, start + PAGE_SIZE);
@@ -59,10 +128,17 @@ function render() {
   for (const f of items) {
     grid.innerHTML += `
       <div class="card">
-        <img src="${f}" loading="lazy">
-        <button onclick="navigator.clipboard.writeText(location.origin + '/' + '${f}')">
-          复制链接
-        </button>
+        <img src="${f}" loading="lazy" alt="${f}">
+        <div class="meta">
+          <div class="filename"
+               title="${f}"
+               onclick="navigator.clipboard.writeText(location.origin + '/${f}')">
+            ${f}
+          </div>
+          <button onclick="navigator.clipboard.writeText(location.origin + '/${f}')">
+            复制链接
+          </button>
+        </div>
       </div>`;
   }
 
@@ -71,11 +147,11 @@ function render() {
 
 function renderPagination() {
   const total = Math.ceil(filtered.length / PAGE_SIZE);
-  const p = document.getElementById('pagination');
-  p.innerHTML = '';
+  const p = document.getElementById("pagination");
+  p.innerHTML = "";
 
   for (let i = 1; i <= total; i++) {
-    const btn = document.createElement('button');
+    const btn = document.createElement("button");
     btn.textContent = i;
     if (i === page) btn.disabled = true;
     btn.onclick = () => {
