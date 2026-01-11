@@ -1,28 +1,106 @@
 [
-  "claw.cloud免费计划.png",
-  "claw.cloud切换区域.png",
-  "claw.cloud创建容器.png",
-  "claw.cloud打开App Launchpad.png",
-  "claw.cloud设置EasyTier镜像.png",
-  "claw.cloud设置EasyTier镜像1.png",
-  "claw.cloud设置EasyTier镜像2.png",
-  "Docker Woekers演示.png",
-  "linux.do-(16×16)-128x128.86u1frsvph.png",
-  "wallhaven-852oxo_3840x2160.5j4dzumwfa.webp",
-  "中国风-山水.png",
-  "为项目命名.png",
-  "创建worker.png",
-  "卡通角色-小白-20251224153901.png",
-  "卡通角色-小白.lw7vdo33j.webp",
-  "可爱小狗-小狗-护眼.3uv587kqp0.webp",
-  "头像.9kgde8nxpu.png",
-  "少女 涂鸦墙背景图片 潮流插画.jpg",
-  "微信截图_20250614112245.png",
-  "点击编辑代码.png",
-  "点击部署.png",
-  "自定义域名.png",
-  "获取EasyTier服务器地址.png",
-  "蓝眼睛的猫女孩.6bh7lxgqfc.webp",
-  "设置EasyTier配置文件.png",
-  "部署成功.jpg"
+  {
+    "path": "claw.cloud免费计划.png",
+    "dir": "/"
+  },
+  {
+    "path": "claw.cloud切换区域.png",
+    "dir": "/"
+  },
+  {
+    "path": "claw.cloud创建容器.png",
+    "dir": "/"
+  },
+  {
+    "path": "claw.cloud打开App Launchpad.png",
+    "dir": "/"
+  },
+  {
+    "path": "claw.cloud设置EasyTier镜像.png",
+    "dir": "/"
+  },
+  {
+    "path": "claw.cloud设置EasyTier镜像1.png",
+    "dir": "/"
+  },
+  {
+    "path": "claw.cloud设置EasyTier镜像2.png",
+    "dir": "/"
+  },
+  {
+    "path": "Docker Woekers演示.png",
+    "dir": "/"
+  },
+  {
+    "path": "linux.do-(16×16)-128x128.86u1frsvph.png",
+    "dir": "/"
+  },
+  {
+    "path": "wallhaven-852oxo_3840x2160.5j4dzumwfa.webp",
+    "dir": "/"
+  },
+  {
+    "path": "中国风-山水.png",
+    "dir": "/"
+  },
+  {
+    "path": "为项目命名.png",
+    "dir": "/"
+  },
+  {
+    "path": "创建worker.png",
+    "dir": "/"
+  },
+  {
+    "path": "卡通角色-小白-20251224153901.png",
+    "dir": "/"
+  },
+  {
+    "path": "卡通角色-小白.lw7vdo33j.webp",
+    "dir": "/"
+  },
+  {
+    "path": "可爱小狗-小狗-护眼.3uv587kqp0.webp",
+    "dir": "/"
+  },
+  {
+    "path": "头像.9kgde8nxpu.png",
+    "dir": "/"
+  },
+  {
+    "path": "少女 涂鸦墙背景图片 潮流插画.jpg",
+    "dir": "/"
+  },
+  {
+    "path": "微信截图_20250614112245.png",
+    "dir": "/"
+  },
+  {
+    "path": "点击编辑代码.png",
+    "dir": "/"
+  },
+  {
+    "path": "点击部署.png",
+    "dir": "/"
+  },
+  {
+    "path": "自定义域名.png",
+    "dir": "/"
+  },
+  {
+    "path": "获取EasyTier服务器地址.png",
+    "dir": "/"
+  },
+  {
+    "path": "蓝眼睛的猫女孩.6bh7lxgqfc.webp",
+    "dir": "/"
+  },
+  {
+    "path": "设置EasyTier配置文件.png",
+    "dir": "/"
+  },
+  {
+    "path": "部署成功.jpg",
+    "dir": "/"
+  }
 ]
