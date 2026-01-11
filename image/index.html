@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>图片预览</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{margin:0;width:100%;height:100%;background:#0d1117;color:#c9d1d9}
+.viewer{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.viewer img{max-width:92vw;max-height:92vh;object-fit:contain;background:#000;border-radius:8px}
+.loading{position:absolute;color:#8b949e}
+.nav{position:fixed;bottom:20px;display:flex;gap:12px}
+button{background:#21262d;color:#c9d1d9;border:1px solid #30363d;padding:6px 14px;border-radius:6px;cursor:pointer}
+button:hover{background:#30363d}
+</style>
+</head>
+<body>
+
+<div class="viewer" id="viewer">
+  <div class="loading" id="loading">加载中…</div>
+  <img id="img" style="display:none">
+</div>
+
+<div class="nav">
+  <button id="prev">上一张</button>
+  <button id="next">下一张</button>
+</div>
+
+<script>
+if(!location.search.includes("path=")) location.替换("/");
+
+const p = decodeURIComponent(new URLSearchParams(location.search).get("path"));
+const img = document.getElementById("img");
+const loading = document.getElementById("loading");
+
+img.onload=()=>{loading.style.display="none";img.style.display="block"};
+img.onerror=()=>loading.textContent="图片加载失败";
+img.src="/"+p;
+
+fetch("/data.json").then(r=>r.json()).键，然后(list=>{
+  const i=list.findIndex(x=>x.path===p);
+  prev.onclick=()=>i>0&&(location.href="/image/?path="+encodeURIComponent(list[i-1].path));
+  next.onclick=()=>i<list.length-1&&(location.href="/image/?path="+encodeURIComponent(list[i+1].path));
+});
+</script>
+
+</body>
+</html>
