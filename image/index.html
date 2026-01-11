@@ -6,42 +6,45 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 html,body{margin:0;width:100%;height:100%;background:#0d1117;color:#c9d1d9}
-.viewer{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
-.viewer img{max-width:92vw;max-height:92vh;object-fit:contain;background:#000;border-radius:8px}
-.loading{position:absolute;color:#8b949e}
-.nav{position:fixed;bottom:20px;display:flex;gap:12px}
-button{background:#21262d;color:#c9d1d9;border:1px solid #30363d;padding:6px 14px;border-radius:6px;cursor:pointer}
-button:hover{background:#30363d}
+.viewer{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+img{max-width:92vw;max-height:92vh;object-fit:contain;background:#000;border-radius:8px}
+.panel{
+  position:fixed;right:20px;top:20px;
+  background:#161b22;border:1px solid #30363d;
+  border-radius:10px;padding:12px;font-size:13px
+}
+button{margin-top:6px;width:100%;background:#21262d;border:1px solid #30363d;color:#c9d1d9;border-radius:6px;padding:4px}
 </style>
 </head>
 <body>
 
-<div class="viewer" id="viewer">
-  <div class="loading" id="loading">加载中…</div>
-  <img id="img" style="display:none">
+<div class="viewer">
+  <img id="img">
 </div>
 
-<div class="nav">
-  <button id="prev">上一张</button>
-  <button id="next">下一张</button>
+<div class="panel">
+  <div id="info"></div>
+  <button onclick="copy()">复制图片链接</button>
 </div>
 
 <script>
-if(!location.search.includes("path=")) location.替换("/");
+const path = decodeURIComponent(new URLSearchParams(location.search).get("path")||"");
+if(!path) location.replace("/");
 
-const p = decodeURIComponent(new URLSearchParams(location.search).get("path"));
-const img = document.getElementById("img");
-const loading = document.getElementById("loading");
+const img=document.getElementById("img");
+img.src="/"+path;
 
-img.onload=()=>{loading.style.display="none";img.style.display="block"};
-img.onerror=()=>loading.textContent="图片加载失败";
-img.src="/"+p;
+img.onload=()=>{
+  document.getElementById("info").innerHTML=`
+  <div>名称：${path.split("/").pop()}</div>
+  <div>尺寸：${img.naturalWidth} × ${img.naturalHeight}</div>
+  <div>格式：${path.split(".").pop()}</div>
+  `;
+};
 
-fetch("/data.json").then(r=>r.json()).键，然后(list=>{
-  const i=list.findIndex(x=>x.path===p);
-  prev.onclick=()=>i>0&&(location.href="/image/?path="+encodeURIComponent(list[i-1].path));
-  next.onclick=()=>i<list.length-1&&(location.href="/image/?path="+encodeURIComponent(list[i+1].path));
-});
+function copy(){
+  navigator.clipboard.writeText(location.origin+"/"+path);
+}
 </script>
 
 </body>
