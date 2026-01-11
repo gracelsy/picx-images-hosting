@@ -2,7 +2,11 @@ name: Generate Image Index
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - "*"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -14,12 +18,11 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm run build
+      - run: node generate.js
 
-      - name: Commit index.html
-        run: |
+      - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add index.html
+          git add index.html images.json
           git commit -m "auto: update image index" || echo "no change"
           git push
