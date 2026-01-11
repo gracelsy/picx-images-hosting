@@ -1,278 +1,241 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+
+<!doctype html>
+<html>
 <head>
-<meta charset="UTF-8">
-<title>图片库</title>
-
+<meta charset="utf-8"/>
+<title>Image Hosting</title>
 <style>
-:root {
-  --bg:#f6f7f8;
-  --panel:#fff;
-  --border:#e5e7eb;
-  --text:#111827;
-  --muted:#6b7280;
-  --primary:#1677ff;
-  --radius:14px;
-}
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui;
-  background:var(--bg);
-  color:var(--text);
-}
+body{margin:0;font-family:system-ui;background:#0d1117;color:#c9d1d9}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+button{cursor:pointer}
 
-.container{display:flex;height:100vh}
-
-/* ===== 目录树 ===== */
-
-.sidebar{
-  width:260px;
-  background:var(--panel);
-  border-right:1px solid var(--border);
-  padding:14px 12px;
-  overflow:auto;
-}
-
-.tree ul{list-style:none;padding-left:14px;margin:6px 0}
-.tree li{font-size:14px}
-
-.node{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  padding:4px 6px;
-  border-radius:6px;
-}
-.node:hover{background:#f3f4f6}
-
-.arrow{
-  width:14px;
-  cursor:pointer;
-  transition:transform .2s ease;
-  color:var(--muted);
-}
-.arrow.open{transform:rotate(90deg)}
-
-.label{cursor:pointer}
-.label.active{color:var(--primary);font-weight:600}
-
-.children{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .25s ease;
-}
-.children.open{max-height:600px}
-
-/* ===== 主区域 ===== */
-
-.main{flex:1;padding:24px 28px;overflow:auto}
-
-.breadcrumb{
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:16px;
-}
-
-.toolbar{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:18px;
-}
-.toolbar input{
-  width:260px;
-  padding:8px 10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-}
-
-/* ===== 图片 ===== */
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:18px;
-}
-
-.card{
-  background:var(--panel);
-  border-radius:var(--radius);
-  overflow:hidden;
-  box-shadow:0 6px 20px rgba(0,0,0,.06);
-  transition:.18s;
-}
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 12px 28px rgba(0,0,0,.12);
-}
-
-.card img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  display:block;
-}
-
-.meta{padding:10px 12px;font-size:13px}
-.meta .name{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.meta .size{color:var(--muted)}
-
-/* ===== 分页 ===== */
-
-.pagination{
-  margin:28px 0 10px;
-  text-align:center;
-}
-.pagination button{
-  min-width:34px;
-  margin:0 4px;
-  padding:6px 10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:var(--panel);
-}
-.pagination button:disabled{
-  background:var(--primary);
-  color:#fff;
-  border-color:var(--primary);
-}
+.layout{display:flex;height:100vh}
+.sidebar{width:260px;overflow:auto;border-right:1px solid #30363d;padding:10px}
+.main{flex:1;overflow:auto;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.card{background:#161b22;border-radius:10px;padding:10px}
+.card img{border-radius:6px}
+.name{font-size:12px;margin-top:6px;word-break:break-all}
 </style>
 </head>
-
 <body>
-<div class="container">
-  <div class="sidebar">
-    <div class="tree" id="tree"></div>
-  </div>
-
-  <div class="main">
-    <div class="breadcrumb" id="breadcrumb"></div>
-
-    <div class="toolbar">
-      <input id="search" placeholder="搜索文件名">
-    </div>
-
-    <div class="grid" id="grid"></div>
-    <div class="pagination" id="pager"></div>
-  </div>
-</div>
-
-<script>
-const images=[{"path":"claw.cloud免费计划.png","dir":"/","name":"claw.cloud免费计划.png","size":127845},{"path":"claw.cloud切换区域.png","dir":"/","name":"claw.cloud切换区域.png","size":133897},{"path":"claw.cloud创建容器.png","dir":"/","name":"claw.cloud创建容器.png","size":131876},{"path":"claw.cloud打开App Launchpad.png","dir":"/","name":"claw.cloud打开App Launchpad.png","size":159042},{"path":"claw.cloud设置EasyTier镜像.png","dir":"/","name":"claw.cloud设置EasyTier镜像.png","size":272789},{"path":"claw.cloud设置EasyTier镜像1.png","dir":"/","name":"claw.cloud设置EasyTier镜像1.png","size":261533},{"path":"claw.cloud设置EasyTier镜像2.png","dir":"/","name":"claw.cloud设置EasyTier镜像2.png","size":253085},{"path":"Docker Woekers演示.png","dir":"/","name":"Docker Woekers演示.png","size":467950},{"path":"linux.do-(16×16)-128x128.86u1frsvph.png","dir":"/","name":"linux.do-(16×16)-128x128.86u1frsvph.png","size":262},{"path":"wallhaven-852oxo_3840x2160.5j4dzumwfa.webp","dir":"/","name":"wallhaven-852oxo_3840x2160.5j4dzumwfa.webp","size":120608},{"path":"中国风-山水.png","dir":"/","name":"中国风-山水.png","size":1017190},{"path":"为项目命名.png","dir":"/","name":"为项目命名.png","size":203345},{"path":"创建worker.png","dir":"/","name":"创建worker.png","size":319299},{"path":"卡通角色-小白-20251224153901.png","dir":"/","name":"卡通角色-小白-20251224153901.png","size":2450403},{"path":"卡通角色-小白.lw7vdo33j.webp","dir":"/","name":"卡通角色-小白.lw7vdo33j.webp","size":279136},{"path":"可爱小狗-小狗-护眼.3uv587kqp0.webp","dir":"/","name":"可爱小狗-小狗-护眼.3uv587kqp0.webp","size":125284},{"path":"头像.9kgde8nxpu.png","dir":"/","name":"头像.9kgde8nxpu.png","size":40881},{"path":"少女 涂鸦墙背景图片 潮流插画.jpg","dir":"/","name":"少女 涂鸦墙背景图片 潮流插画.jpg","size":2536232},{"path":"微信截图_20250614112245.png","dir":"/","name":"微信截图_20250614112245.png","size":127953},{"path":"点击编辑代码.png","dir":"/","name":"点击编辑代码.png","size":310332},{"path":"点击部署.png","dir":"/","name":"点击部署.png","size":302325},{"path":"自定义域名.png","dir":"/","name":"自定义域名.png","size":268263},{"path":"获取EasyTier服务器地址.png","dir":"/","name":"获取EasyTier服务器地址.png","size":229821},{"path":"蓝眼睛的猫女孩.6bh7lxgqfc.webp","dir":"/","name":"蓝眼睛的猫女孩.6bh7lxgqfc.webp","size":300108},{"path":"设置EasyTier配置文件.png","dir":"/","name":"设置EasyTier配置文件.png","size":144165},{"path":"部署成功.jpg","dir":"/","name":"部署成功.jpg","size":565660}];
-const tree={};
-const PAGE=24;
-
-/* ===== URL 状态 ===== */
-
-function getQuery(){
-  const p=new URLSearchParams(location.search);
-  return{
-    dir:p.get("dir")||"/",
-    page:+p.get("page")||1,
-    q:p.get("q")||""
-  }
-}
-function setQuery(s,r=false){
-  const p=new URLSearchParams();
-  if(s.dir!=="/")p.set("dir",s.dir);
-  if(s.page>1)p.set("page",s.page);
-  if(s.q)p.set("q",s.q);
-  history[r?"replaceState":"pushState"](s,"","?"+p.toString());
-}
-
-/* ===== 初始化 ===== */
-
-const init=getQuery();
-let dir=init.dir;
-let page=init.page;
-let keyword=init.q;
-
-/* ===== 目录树 ===== */
-
-function renderTree(node,base=""){
-  let html="<ul>";
-  for(const k in node){
-    const p=base?base+"/"+k:k;
-    const has=Object.keys(node[k]).length;
-    html+=`
-      <li>
-        <div class="node">
-          <span class="arrow ${has?"":"hidden"}" onclick="toggle(this)">▶</span>
-          <span class="label" onclick="setDir('${p}',this)">${k}</span>
-        </div>
-        <div class="children">${has?renderTree(node[k],p):""}</div>
-      </li>`;
-  }
-  return html+"</ul>";
-}
-
-document.getElementById("tree").innerHTML=renderTree(tree);
-
-/* ===== 行为 ===== */
-
-function toggle(el){
-  el.classList.toggle("open");
-  el.parentElement.nextElementSibling.classList.toggle("open");
-}
-
-function setDir(d,el){
-  dir=d;page=1;
-  document.querySelectorAll(".label").forEach(e=>e.classList.remove("active"));
-  el.classList.add("active");
-  setQuery({dir,page,q:keyword});
-  render();
-}
-
-document.getElementById("search").value=keyword;
-document.getElementById("search").oninput=e=>{
-  keyword=e.target.value.toLowerCase();
-  page=1;
-  setQuery({dir,page,q:keyword});
-  render();
-};
-
-window.onpopstate=e=>{
-  const s=e.state||getQuery();
-  dir=s.dir;page=s.page;keyword=s.q;
-  document.getElementById("search").value=keyword;
-  render();
-};
-
-/* ===== 渲染 ===== */
-
-function render(){
-  const list=images.filter(i=>
-    (dir==="/" ? i.dir==="/" : i.dir===dir) &&
-    i.name.toLowerCase().includes(keyword)
-  );
-  const total=Math.ceil(list.length/PAGE);
-  const data=list.slice((page-1)*PAGE,page*PAGE);
-
-  document.getElementById("breadcrumb").innerText="首页 / "+dir;
-  document.getElementById("grid").innerHTML=data.map(i=>`
-    <div class="card">
-      <a href="image.html?path=${encodeURIComponent(i.path)}">
-        <img src="${i.path}" loading="lazy">
-      </a>
-      <div class="meta">
-        <div class="name">${i.name}</div>
-        <div class="size">${(i.size/1024).toFixed(1)} KB</div>
+<div class="layout">
+  <aside class="sidebar"><div class="file">
+        <a href="image/?path=claw.cloud%E5%85%8D%E8%B4%B9%E8%AE%A1%E5%88%92.png">claw.cloud免费计划.png</a>
+      </div><div class="file">
+        <a href="image/?path=claw.cloud%E5%88%87%E6%8D%A2%E5%8C%BA%E5%9F%9F.png">claw.cloud切换区域.png</a>
+      </div><div class="file">
+        <a href="image/?path=claw.cloud%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8.png">claw.cloud创建容器.png</a>
+      </div><div class="file">
+        <a href="image/?path=claw.cloud%E6%89%93%E5%BC%80App%20Launchpad.png">claw.cloud打开App Launchpad.png</a>
+      </div><div class="file">
+        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F.png">claw.cloud设置EasyTier镜像.png</a>
+      </div><div class="file">
+        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F1.png">claw.cloud设置EasyTier镜像1.png</a>
+      </div><div class="file">
+        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F2.png">claw.cloud设置EasyTier镜像2.png</a>
+      </div><div class="file">
+        <a href="image/?path=Docker%20Woekers%E6%BC%94%E7%A4%BA.png">Docker Woekers演示.png</a>
+      </div><div class="file">
+        <a href="image/?path=linux.do-(16%C3%9716)-128x128.86u1frsvph.png">linux.do-(16×16)-128x128.86u1frsvph.png</a>
+      </div><div class="file">
+        <a href="image/?path=wallhaven-852oxo_3840x2160.5j4dzumwfa.webp">wallhaven-852oxo_3840x2160.5j4dzumwfa.webp</a>
+      </div><div class="file">
+        <a href="image/?path=%E4%B8%AD%E5%9B%BD%E9%A3%8E-%E5%B1%B1%E6%B0%B4.png">中国风-山水.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E4%B8%BA%E9%A1%B9%E7%9B%AE%E5%91%BD%E5%90%8D.png">为项目命名.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%88%9B%E5%BB%BAworker.png">创建worker.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD-20251224153901.png">卡通角色-小白-20251224153901.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD.lw7vdo33j.webp">卡通角色-小白.lw7vdo33j.webp</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%8F%AF%E7%88%B1%E5%B0%8F%E7%8B%97-%E5%B0%8F%E7%8B%97-%E6%8A%A4%E7%9C%BC.3uv587kqp0.webp">可爱小狗-小狗-护眼.3uv587kqp0.webp</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%A4%B4%E5%83%8F.9kgde8nxpu.png">头像.9kgde8nxpu.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%B0%91%E5%A5%B3%20%E6%B6%82%E9%B8%A6%E5%A2%99%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%87%20%E6%BD%AE%E6%B5%81%E6%8F%92%E7%94%BB.jpg">少女 涂鸦墙背景图片 潮流插画.jpg</a>
+      </div><div class="file">
+        <a href="image/?path=%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250614112245.png">微信截图_20250614112245.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E7%82%B9%E5%87%BB%E7%BC%96%E8%BE%91%E4%BB%A3%E7%A0%81.png">点击编辑代码.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E7%82%B9%E5%87%BB%E9%83%A8%E7%BD%B2.png">点击部署.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9F%9F%E5%90%8D.png">自定义域名.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E8%8E%B7%E5%8F%96EasyTier%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80.png">获取EasyTier服务器地址.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E8%93%9D%E7%9C%BC%E7%9D%9B%E7%9A%84%E7%8C%AB%E5%A5%B3%E5%AD%A9.6bh7lxgqfc.webp">蓝眼睛的猫女孩.6bh7lxgqfc.webp</a>
+      </div><div class="file">
+        <a href="image/?path=%E8%AE%BE%E7%BD%AEEasyTier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6.png">设置EasyTier配置文件.png</a>
+      </div><div class="file">
+        <a href="image/?path=%E9%83%A8%E7%BD%B2%E6%88%90%E5%8A%9F.jpg">部署成功.jpg</a>
+      </div></aside>
+  <main class="main">
+    <div class="grid">
+      
+      <div class="card">
+        <a href="image/?path=claw.cloud%E5%85%8D%E8%B4%B9%E8%AE%A1%E5%88%92.png">
+          <img src="claw.cloud免费计划.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud免费计划.png</div>
       </div>
-    </div>`).join("");
-
-  document.getElementById("pager").innerHTML=
-    Array.from({length:total},(_,i)=>`
-      <button onclick="page=${i+1};setQuery({dir,page,q:keyword});render()"
-      ${page===i+1?"disabled":""}>${i+1}</button>`).join("");
-}
-
-setQuery({dir,page,q:keyword},true);
-render();
-</script>
+      <div class="card">
+        <a href="image/?path=claw.cloud%E5%88%87%E6%8D%A2%E5%8C%BA%E5%9F%9F.png">
+          <img src="claw.cloud切换区域.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud切换区域.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=claw.cloud%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8.png">
+          <img src="claw.cloud创建容器.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud创建容器.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=claw.cloud%E6%89%93%E5%BC%80App%20Launchpad.png">
+          <img src="claw.cloud打开App Launchpad.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud打开App Launchpad.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F.png">
+          <img src="claw.cloud设置EasyTier镜像.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud设置EasyTier镜像.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F1.png">
+          <img src="claw.cloud设置EasyTier镜像1.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud设置EasyTier镜像1.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F2.png">
+          <img src="claw.cloud设置EasyTier镜像2.png" loading="lazy"/>
+        </a>
+        <div class="name">claw.cloud设置EasyTier镜像2.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=Docker%20Woekers%E6%BC%94%E7%A4%BA.png">
+          <img src="Docker Woekers演示.png" loading="lazy"/>
+        </a>
+        <div class="name">Docker Woekers演示.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=linux.do-(16%C3%9716)-128x128.86u1frsvph.png">
+          <img src="linux.do-(16×16)-128x128.86u1frsvph.png" loading="lazy"/>
+        </a>
+        <div class="name">linux.do-(16×16)-128x128.86u1frsvph.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=wallhaven-852oxo_3840x2160.5j4dzumwfa.webp">
+          <img src="wallhaven-852oxo_3840x2160.5j4dzumwfa.webp" loading="lazy"/>
+        </a>
+        <div class="name">wallhaven-852oxo_3840x2160.5j4dzumwfa.webp</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E4%B8%AD%E5%9B%BD%E9%A3%8E-%E5%B1%B1%E6%B0%B4.png">
+          <img src="中国风-山水.png" loading="lazy"/>
+        </a>
+        <div class="name">中国风-山水.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E4%B8%BA%E9%A1%B9%E7%9B%AE%E5%91%BD%E5%90%8D.png">
+          <img src="为项目命名.png" loading="lazy"/>
+        </a>
+        <div class="name">为项目命名.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%88%9B%E5%BB%BAworker.png">
+          <img src="创建worker.png" loading="lazy"/>
+        </a>
+        <div class="name">创建worker.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD-20251224153901.png">
+          <img src="卡通角色-小白-20251224153901.png" loading="lazy"/>
+        </a>
+        <div class="name">卡通角色-小白-20251224153901.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD.lw7vdo33j.webp">
+          <img src="卡通角色-小白.lw7vdo33j.webp" loading="lazy"/>
+        </a>
+        <div class="name">卡通角色-小白.lw7vdo33j.webp</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%8F%AF%E7%88%B1%E5%B0%8F%E7%8B%97-%E5%B0%8F%E7%8B%97-%E6%8A%A4%E7%9C%BC.3uv587kqp0.webp">
+          <img src="可爱小狗-小狗-护眼.3uv587kqp0.webp" loading="lazy"/>
+        </a>
+        <div class="name">可爱小狗-小狗-护眼.3uv587kqp0.webp</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%A4%B4%E5%83%8F.9kgde8nxpu.png">
+          <img src="头像.9kgde8nxpu.png" loading="lazy"/>
+        </a>
+        <div class="name">头像.9kgde8nxpu.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%B0%91%E5%A5%B3%20%E6%B6%82%E9%B8%A6%E5%A2%99%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%87%20%E6%BD%AE%E6%B5%81%E6%8F%92%E7%94%BB.jpg">
+          <img src="少女 涂鸦墙背景图片 潮流插画.jpg" loading="lazy"/>
+        </a>
+        <div class="name">少女 涂鸦墙背景图片 潮流插画.jpg</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250614112245.png">
+          <img src="微信截图_20250614112245.png" loading="lazy"/>
+        </a>
+        <div class="name">微信截图_20250614112245.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E7%82%B9%E5%87%BB%E7%BC%96%E8%BE%91%E4%BB%A3%E7%A0%81.png">
+          <img src="点击编辑代码.png" loading="lazy"/>
+        </a>
+        <div class="name">点击编辑代码.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E7%82%B9%E5%87%BB%E9%83%A8%E7%BD%B2.png">
+          <img src="点击部署.png" loading="lazy"/>
+        </a>
+        <div class="name">点击部署.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9F%9F%E5%90%8D.png">
+          <img src="自定义域名.png" loading="lazy"/>
+        </a>
+        <div class="name">自定义域名.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E8%8E%B7%E5%8F%96EasyTier%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80.png">
+          <img src="获取EasyTier服务器地址.png" loading="lazy"/>
+        </a>
+        <div class="name">获取EasyTier服务器地址.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E8%93%9D%E7%9C%BC%E7%9D%9B%E7%9A%84%E7%8C%AB%E5%A5%B3%E5%AD%A9.6bh7lxgqfc.webp">
+          <img src="蓝眼睛的猫女孩.6bh7lxgqfc.webp" loading="lazy"/>
+        </a>
+        <div class="name">蓝眼睛的猫女孩.6bh7lxgqfc.webp</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E8%AE%BE%E7%BD%AEEasyTier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6.png">
+          <img src="设置EasyTier配置文件.png" loading="lazy"/>
+        </a>
+        <div class="name">设置EasyTier配置文件.png</div>
+      </div>
+      <div class="card">
+        <a href="image/?path=%E9%83%A8%E7%BD%B2%E6%88%90%E5%8A%9F.jpg">
+          <img src="部署成功.jpg" loading="lazy"/>
+        </a>
+        <div class="name">部署成功.jpg</div>
+      </div>
+    </div>
+  </main>
+</div>
 </body>
 </html>
