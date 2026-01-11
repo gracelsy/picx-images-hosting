@@ -1,108 +1,86 @@
 const fs = require("fs");
+const path = require("path");
 
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
-const ROOT = "./";
+const ROOT = ".";
 const PAGE_SIZE = 24;
 
-// 读取根目录图片
-const images = fs
-  .readdirSync(ROOT)
-  .filter(f => IMAGE_EXT.test(f))
-  .sort((a, b) => a.localeCompare(b));
+function walk(dir, base = "") {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  let result = [];
 
-// 输出 images.json
+  for (const e of entries) {
+    if (e.name.startsWith(".")) continue;
+
+    const full = path.join(dir, e.name);
+    const rel = path.join(base, e.name);
+
+    if (e.isDirectory()) {
+      result = result.concat(walk(full, rel));
+    } else if (IMAGE_EXT.test(e.name)) {
+      const dirname = base || "/";
+      result.push({
+        path: rel.replace(/\\/g, "/"),
+        dir: dirname
+      });
+    }
+  }
+  return result;
+}
+
+const images = walk(ROOT)
+  .filter(i => i.path !== "index.html" && i.path !== "images.json")
+  .sort((a, b) => a.path.localeCompare(b.path));
+
 fs.writeFileSync(
   "images.json",
   JSON.stringify(images, null, 2)
 );
 
-// 生成 index.html
+/* ================= HTML ================= */
+
 const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <title>图片列表</title>
-
 <style>
-body {
-  font-family: system-ui, -apple-system;
-  padding: 20px;
-  background: #f5f5f5;
-}
-
-h1 {
-  margin-bottom: 12px;
-}
-
-input {
-  padding: 8px 10px;
-  width: 320px;
-  max-width: 100%;
-  font-size: 14px;
-}
-
+body { font-family: system-ui; padding: 20px; background: #f5f5f5; }
+input, select { padding: 8px; margin-right: 8px; }
 .grid {
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
 }
-
 .card {
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
   box-shadow: 0 2px 6px rgba(0,0,0,.06);
 }
-
 .card img {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1/1;
   object-fit: cover;
-  background: #eee;
 }
-
 .meta {
   padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
-
 .filename {
   font-size: 13px;
-  color: #333;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer;
 }
-
-.filename:hover {
-  text-decoration: underline;
+.dir {
+  font-size: 11px;
+  color: #666;
 }
-
 button {
+  margin-top: 6px;
+  width: 100%;
   font-size: 12px;
-  padding: 6px;
-  cursor: pointer;
-}
-
-.pagination {
-  margin-top: 20px;
-}
-
-.pagination button {
-  margin-right: 6px;
-  margin-bottom: 6px;
-}
-
-@media (max-width: 480px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  }
 }
 </style>
 </head>
@@ -111,10 +89,11 @@ button {
 
 <h1>图片列表</h1>
 
+<select id="dir"></select>
 <input id="search" placeholder="搜索文件名…" />
 
 <div class="grid" id="grid"></div>
-<div class="pagination" id="pagination"></div>
+<div id="pagination"></div>
 
 <script>
 const PAGE_SIZE = ${PAGE_SIZE};
@@ -126,16 +105,33 @@ fetch("images.json")
   .then(r => r.json())
   .then(data => {
     images = data;
-    filtered = images;
-    render();
+    initDir();
+    apply();
   });
 
-document.getElementById("search").addEventListener("input", e => {
-  const q = e.target.value.toLowerCase();
-  filtered = images.filter(f => f.toLowerCase().includes(q));
+function initDir() {
+  const dirs = ["/", ...new Set(images.map(i => i.dir))];
+  const sel = document.getElementById("dir");
+  sel.innerHTML = dirs.map(d => \`<option value="\${d}">\${d}</option>\`).join("");
+}
+
+document.getElementById("dir").onchange =
+document.getElementById("search").oninput = () => {
   page = 1;
+  apply();
+};
+
+function apply() {
+  const d = document.getElementById("dir").value;
+  const q = document.getElementById("search").value.toLowerCase();
+
+  filtered = images.filter(i =>
+    (d === "/" || i.dir === d) &&
+    i.path.toLowerCase().includes(q)
+  );
+
   render();
-});
+}
 
 function render() {
   const grid = document.getElementById("grid");
@@ -144,40 +140,33 @@ function render() {
   const start = (page - 1) * PAGE_SIZE;
   const items = filtered.slice(start, start + PAGE_SIZE);
 
-  for (const f of items) {
+  for (const i of items) {
     grid.innerHTML += \`
       <div class="card">
-        <img src="\${f}" loading="lazy" alt="\${f}">
+        <img src="\${i.path}">
         <div class="meta">
-          <div class="filename"
-               title="\${f}"
-               onclick="navigator.clipboard.writeText(location.origin + '/\${f}')">
-            \${f}
-          </div>
-          <button onclick="navigator.clipboard.writeText(location.origin + '/\${f}')">
+          <div class="filename" title="\${i.path}">\${i.path}</div>
+          <div class="dir">\${i.dir}</div>
+          <button onclick="navigator.clipboard.writeText(location.origin + '/\${i.path}')">
             复制链接
           </button>
         </div>
       </div>\`;
   }
 
-  renderPagination();
+  renderPage();
 }
 
-function renderPagination() {
+function renderPage() {
   const total = Math.ceil(filtered.length / PAGE_SIZE);
   const p = document.getElementById("pagination");
   p.innerHTML = "";
-
   for (let i = 1; i <= total; i++) {
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    if (i === page) btn.disabled = true;
-    btn.onclick = () => {
-      page = i;
-      render();
-    };
-    p.appendChild(btn);
+    const b = document.createElement("button");
+    b.textContent = i;
+    if (i === page) b.disabled = true;
+    b.onclick = () => { page = i; render(); };
+    p.appendChild(b);
   }
 }
 </script>
