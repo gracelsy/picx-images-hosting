@@ -12,7 +12,7 @@
   --border:#30363d;
   --text:#c9d1d9;
   --muted:#8b949e;
-  --accent:#2f81f7;
+  --hover:#21262d;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui;background:var(--bg);color:var(--text)}
@@ -51,301 +51,262 @@ img{display:block;max-width:100%}
 }
 
 /* 目录树 */
-.tree-dir-title,
-.tree-file{
-  display:flex;
-  align-items:center;
-  gap:6px;
+.tree-dir-title,.tree-file{
   padding:6px 8px;
   border-radius:6px;
   cursor:pointer;
 }
-.tree-file:hover,
-.tree-dir-title:hover{
-  background:#21262d;
+.tree-dir-title:hover,.tree-file:hover{
+  background:var(--hover);
 }
 .tree-children{
   margin-left:14px;
-  border-left:1px dashed #30363d;
+  border-left:1px dashed var(--border);
   padding-left:8px;
-  overflow:hidden;
-  transition:all .25s ease;
 }
 .tree-dir.collapsed .tree-children{
-  max-height:0;
-  opacity:0;
-}
-.tree-file .name{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  display:none;
 }
 </style>
 </head>
 <body>
 <div class="layout">
-  <aside class="sidebar" id="tree">
+  <aside class="sidebar">
     
       <div class="tree-file" data-path="claw.cloud免费计划.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud免费计划.png</span>
+        🖼 <span>claw.cloud免费计划.png</span>
       </div>
       <div class="tree-file" data-path="claw.cloud切换区域.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud切换区域.png</span>
+        🖼 <span>claw.cloud切换区域.png</span>
       </div>
       <div class="tree-file" data-path="claw.cloud创建容器.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud创建容器.png</span>
+        🖼 <span>claw.cloud创建容器.png</span>
       </div>
       <div class="tree-file" data-path="claw.cloud打开App Launchpad.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud打开App Launchpad.png</span>
+        🖼 <span>claw.cloud打开App Launchpad.png</span>
       </div>
       <div class="tree-file" data-path="claw.cloud设置EasyTier镜像.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud设置EasyTier镜像.png</span>
+        🖼 <span>claw.cloud设置EasyTier镜像.png</span>
       </div>
       <div class="tree-file" data-path="claw.cloud设置EasyTier镜像1.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud设置EasyTier镜像1.png</span>
+        🖼 <span>claw.cloud设置EasyTier镜像1.png</span>
       </div>
       <div class="tree-file" data-path="claw.cloud设置EasyTier镜像2.png">
-        <span class="icon">🖼</span>
-        <span class="name">claw.cloud设置EasyTier镜像2.png</span>
+        🖼 <span>claw.cloud设置EasyTier镜像2.png</span>
       </div>
       <div class="tree-file" data-path="Docker Woekers演示.png">
-        <span class="icon">🖼</span>
-        <span class="name">Docker Woekers演示.png</span>
+        🖼 <span>Docker Woekers演示.png</span>
       </div>
       <div class="tree-file" data-path="linux.do-(16×16)-128x128.86u1frsvph.png">
-        <span class="icon">🖼</span>
-        <span class="name">linux.do-(16×16)-128x128.86u1frsvph.png</span>
+        🖼 <span>linux.do-(16×16)-128x128.86u1frsvph.png</span>
       </div>
       <div class="tree-file" data-path="wallhaven-852oxo_3840x2160.5j4dzumwfa.webp">
-        <span class="icon">🖼</span>
-        <span class="name">wallhaven-852oxo_3840x2160.5j4dzumwfa.webp</span>
+        🖼 <span>wallhaven-852oxo_3840x2160.5j4dzumwfa.webp</span>
       </div>
       <div class="tree-file" data-path="中国风-山水.png">
-        <span class="icon">🖼</span>
-        <span class="name">中国风-山水.png</span>
+        🖼 <span>中国风-山水.png</span>
       </div>
       <div class="tree-file" data-path="为项目命名.png">
-        <span class="icon">🖼</span>
-        <span class="name">为项目命名.png</span>
+        🖼 <span>为项目命名.png</span>
       </div>
       <div class="tree-file" data-path="创建worker.png">
-        <span class="icon">🖼</span>
-        <span class="name">创建worker.png</span>
+        🖼 <span>创建worker.png</span>
       </div>
       <div class="tree-file" data-path="卡通角色-小白-20251224153901.png">
-        <span class="icon">🖼</span>
-        <span class="name">卡通角色-小白-20251224153901.png</span>
+        🖼 <span>卡通角色-小白-20251224153901.png</span>
       </div>
       <div class="tree-file" data-path="卡通角色-小白.lw7vdo33j.webp">
-        <span class="icon">🖼</span>
-        <span class="name">卡通角色-小白.lw7vdo33j.webp</span>
+        🖼 <span>卡通角色-小白.lw7vdo33j.webp</span>
       </div>
       <div class="tree-file" data-path="可爱小狗-小狗-护眼.3uv587kqp0.webp">
-        <span class="icon">🖼</span>
-        <span class="name">可爱小狗-小狗-护眼.3uv587kqp0.webp</span>
+        🖼 <span>可爱小狗-小狗-护眼.3uv587kqp0.webp</span>
       </div>
       <div class="tree-file" data-path="头像.9kgde8nxpu.png">
-        <span class="icon">🖼</span>
-        <span class="name">头像.9kgde8nxpu.png</span>
+        🖼 <span>头像.9kgde8nxpu.png</span>
       </div>
       <div class="tree-file" data-path="少女 涂鸦墙背景图片 潮流插画.jpg">
-        <span class="icon">🖼</span>
-        <span class="name">少女 涂鸦墙背景图片 潮流插画.jpg</span>
+        🖼 <span>少女 涂鸦墙背景图片 潮流插画.jpg</span>
       </div>
       <div class="tree-file" data-path="微信截图_20250614112245.png">
-        <span class="icon">🖼</span>
-        <span class="name">微信截图_20250614112245.png</span>
+        🖼 <span>微信截图_20250614112245.png</span>
       </div>
       <div class="tree-file" data-path="点击编辑代码.png">
-        <span class="icon">🖼</span>
-        <span class="name">点击编辑代码.png</span>
+        🖼 <span>点击编辑代码.png</span>
       </div>
       <div class="tree-file" data-path="点击部署.png">
-        <span class="icon">🖼</span>
-        <span class="name">点击部署.png</span>
+        🖼 <span>点击部署.png</span>
       </div>
       <div class="tree-file" data-path="自定义域名.png">
-        <span class="icon">🖼</span>
-        <span class="name">自定义域名.png</span>
+        🖼 <span>自定义域名.png</span>
       </div>
       <div class="tree-file" data-path="获取EasyTier服务器地址.png">
-        <span class="icon">🖼</span>
-        <span class="name">获取EasyTier服务器地址.png</span>
+        🖼 <span>获取EasyTier服务器地址.png</span>
       </div>
       <div class="tree-file" data-path="蓝眼睛的猫女孩.6bh7lxgqfc.webp">
-        <span class="icon">🖼</span>
-        <span class="name">蓝眼睛的猫女孩.6bh7lxgqfc.webp</span>
+        🖼 <span>蓝眼睛的猫女孩.6bh7lxgqfc.webp</span>
       </div>
       <div class="tree-file" data-path="设置EasyTier配置文件.png">
-        <span class="icon">🖼</span>
-        <span class="name">设置EasyTier配置文件.png</span>
+        🖼 <span>设置EasyTier配置文件.png</span>
       </div>
       <div class="tree-file" data-path="部署成功.jpg">
-        <span class="icon">🖼</span>
-        <span class="name">部署成功.jpg</span>
+        🖼 <span>部署成功.jpg</span>
       </div>
   </aside>
   <main class="main">
     <div class="grid">
       
       <div class="card">
-        <a href="image/?path=claw.cloud%E5%85%8D%E8%B4%B9%E8%AE%A1%E5%88%92.png">
+        <a href="/image/?path=claw.cloud%E5%85%8D%E8%B4%B9%E8%AE%A1%E5%88%92.png">
           <img src="claw.cloud免费计划.png" loading="lazy">
         </a>
         <div class="name">claw.cloud免费计划.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=claw.cloud%E5%88%87%E6%8D%A2%E5%8C%BA%E5%9F%9F.png">
+        <a href="/image/?path=claw.cloud%E5%88%87%E6%8D%A2%E5%8C%BA%E5%9F%9F.png">
           <img src="claw.cloud切换区域.png" loading="lazy">
         </a>
         <div class="name">claw.cloud切换区域.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=claw.cloud%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8.png">
+        <a href="/image/?path=claw.cloud%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8.png">
           <img src="claw.cloud创建容器.png" loading="lazy">
         </a>
         <div class="name">claw.cloud创建容器.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=claw.cloud%E6%89%93%E5%BC%80App%20Launchpad.png">
+        <a href="/image/?path=claw.cloud%E6%89%93%E5%BC%80App%20Launchpad.png">
           <img src="claw.cloud打开App Launchpad.png" loading="lazy">
         </a>
         <div class="name">claw.cloud打开App Launchpad.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F.png">
+        <a href="/image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F.png">
           <img src="claw.cloud设置EasyTier镜像.png" loading="lazy">
         </a>
         <div class="name">claw.cloud设置EasyTier镜像.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F1.png">
+        <a href="/image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F1.png">
           <img src="claw.cloud设置EasyTier镜像1.png" loading="lazy">
         </a>
         <div class="name">claw.cloud设置EasyTier镜像1.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F2.png">
+        <a href="/image/?path=claw.cloud%E8%AE%BE%E7%BD%AEEasyTier%E9%95%9C%E5%83%8F2.png">
           <img src="claw.cloud设置EasyTier镜像2.png" loading="lazy">
         </a>
         <div class="name">claw.cloud设置EasyTier镜像2.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=Docker%20Woekers%E6%BC%94%E7%A4%BA.png">
+        <a href="/image/?path=Docker%20Woekers%E6%BC%94%E7%A4%BA.png">
           <img src="Docker Woekers演示.png" loading="lazy">
         </a>
         <div class="name">Docker Woekers演示.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=linux.do-(16%C3%9716)-128x128.86u1frsvph.png">
+        <a href="/image/?path=linux.do-(16%C3%9716)-128x128.86u1frsvph.png">
           <img src="linux.do-(16×16)-128x128.86u1frsvph.png" loading="lazy">
         </a>
         <div class="name">linux.do-(16×16)-128x128.86u1frsvph.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=wallhaven-852oxo_3840x2160.5j4dzumwfa.webp">
+        <a href="/image/?path=wallhaven-852oxo_3840x2160.5j4dzumwfa.webp">
           <img src="wallhaven-852oxo_3840x2160.5j4dzumwfa.webp" loading="lazy">
         </a>
         <div class="name">wallhaven-852oxo_3840x2160.5j4dzumwfa.webp</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E4%B8%AD%E5%9B%BD%E9%A3%8E-%E5%B1%B1%E6%B0%B4.png">
+        <a href="/image/?path=%E4%B8%AD%E5%9B%BD%E9%A3%8E-%E5%B1%B1%E6%B0%B4.png">
           <img src="中国风-山水.png" loading="lazy">
         </a>
         <div class="name">中国风-山水.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E4%B8%BA%E9%A1%B9%E7%9B%AE%E5%91%BD%E5%90%8D.png">
+        <a href="/image/?path=%E4%B8%BA%E9%A1%B9%E7%9B%AE%E5%91%BD%E5%90%8D.png">
           <img src="为项目命名.png" loading="lazy">
         </a>
         <div class="name">为项目命名.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%88%9B%E5%BB%BAworker.png">
+        <a href="/image/?path=%E5%88%9B%E5%BB%BAworker.png">
           <img src="创建worker.png" loading="lazy">
         </a>
         <div class="name">创建worker.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD-20251224153901.png">
+        <a href="/image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD-20251224153901.png">
           <img src="卡通角色-小白-20251224153901.png" loading="lazy">
         </a>
         <div class="name">卡通角色-小白-20251224153901.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD.lw7vdo33j.webp">
+        <a href="/image/?path=%E5%8D%A1%E9%80%9A%E8%A7%92%E8%89%B2-%E5%B0%8F%E7%99%BD.lw7vdo33j.webp">
           <img src="卡通角色-小白.lw7vdo33j.webp" loading="lazy">
         </a>
         <div class="name">卡通角色-小白.lw7vdo33j.webp</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%8F%AF%E7%88%B1%E5%B0%8F%E7%8B%97-%E5%B0%8F%E7%8B%97-%E6%8A%A4%E7%9C%BC.3uv587kqp0.webp">
+        <a href="/image/?path=%E5%8F%AF%E7%88%B1%E5%B0%8F%E7%8B%97-%E5%B0%8F%E7%8B%97-%E6%8A%A4%E7%9C%BC.3uv587kqp0.webp">
           <img src="可爱小狗-小狗-护眼.3uv587kqp0.webp" loading="lazy">
         </a>
         <div class="name">可爱小狗-小狗-护眼.3uv587kqp0.webp</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%A4%B4%E5%83%8F.9kgde8nxpu.png">
+        <a href="/image/?path=%E5%A4%B4%E5%83%8F.9kgde8nxpu.png">
           <img src="头像.9kgde8nxpu.png" loading="lazy">
         </a>
         <div class="name">头像.9kgde8nxpu.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%B0%91%E5%A5%B3%20%E6%B6%82%E9%B8%A6%E5%A2%99%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%87%20%E6%BD%AE%E6%B5%81%E6%8F%92%E7%94%BB.jpg">
+        <a href="/image/?path=%E5%B0%91%E5%A5%B3%20%E6%B6%82%E9%B8%A6%E5%A2%99%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%87%20%E6%BD%AE%E6%B5%81%E6%8F%92%E7%94%BB.jpg">
           <img src="少女 涂鸦墙背景图片 潮流插画.jpg" loading="lazy">
         </a>
         <div class="name">少女 涂鸦墙背景图片 潮流插画.jpg</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250614112245.png">
+        <a href="/image/?path=%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20250614112245.png">
           <img src="微信截图_20250614112245.png" loading="lazy">
         </a>
         <div class="name">微信截图_20250614112245.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E7%82%B9%E5%87%BB%E7%BC%96%E8%BE%91%E4%BB%A3%E7%A0%81.png">
+        <a href="/image/?path=%E7%82%B9%E5%87%BB%E7%BC%96%E8%BE%91%E4%BB%A3%E7%A0%81.png">
           <img src="点击编辑代码.png" loading="lazy">
         </a>
         <div class="name">点击编辑代码.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E7%82%B9%E5%87%BB%E9%83%A8%E7%BD%B2.png">
+        <a href="/image/?path=%E7%82%B9%E5%87%BB%E9%83%A8%E7%BD%B2.png">
           <img src="点击部署.png" loading="lazy">
         </a>
         <div class="name">点击部署.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9F%9F%E5%90%8D.png">
+        <a href="/image/?path=%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9F%9F%E5%90%8D.png">
           <img src="自定义域名.png" loading="lazy">
         </a>
         <div class="name">自定义域名.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E8%8E%B7%E5%8F%96EasyTier%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80.png">
+        <a href="/image/?path=%E8%8E%B7%E5%8F%96EasyTier%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80.png">
           <img src="获取EasyTier服务器地址.png" loading="lazy">
         </a>
         <div class="name">获取EasyTier服务器地址.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E8%93%9D%E7%9C%BC%E7%9D%9B%E7%9A%84%E7%8C%AB%E5%A5%B3%E5%AD%A9.6bh7lxgqfc.webp">
+        <a href="/image/?path=%E8%93%9D%E7%9C%BC%E7%9D%9B%E7%9A%84%E7%8C%AB%E5%A5%B3%E5%AD%A9.6bh7lxgqfc.webp">
           <img src="蓝眼睛的猫女孩.6bh7lxgqfc.webp" loading="lazy">
         </a>
         <div class="name">蓝眼睛的猫女孩.6bh7lxgqfc.webp</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E8%AE%BE%E7%BD%AEEasyTier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6.png">
+        <a href="/image/?path=%E8%AE%BE%E7%BD%AEEasyTier%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6.png">
           <img src="设置EasyTier配置文件.png" loading="lazy">
         </a>
         <div class="name">设置EasyTier配置文件.png</div>
       </div>
       <div class="card">
-        <a href="image/?path=%E9%83%A8%E7%BD%B2%E6%88%90%E5%8A%9F.jpg">
+        <a href="/image/?path=%E9%83%A8%E7%BD%B2%E6%88%90%E5%8A%9F.jpg">
           <img src="部署成功.jpg" loading="lazy">
         </a>
         <div class="name">部署成功.jpg</div>
@@ -359,7 +320,7 @@ document.querySelectorAll(".tree-dir-title").forEach(t=>{
   t.onclick=()=>t.parentElement.classList.toggle("collapsed");
 });
 document.querySelectorAll(".tree-file").forEach(f=>{
-  f.onclick=()=>location.href="image/?path="+encodeURIComponent(f.dataset.path);
+  f.onclick=()=>location.href="/image/?path="+encodeURIComponent(f.dataset.path);
 });
 </script>
 </body>
