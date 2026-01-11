@@ -1,17 +1,6 @@
 {
-  "name": "edgeone-image-gallery",
-  "version": "1.0.0",
-  "description": "腾讯云 EdgeOne Pages 图片展示（根目录）",
-  "main": "generate.js",
+  "type": "module"，
   "scripts": {
-    "generate": "node generate.js",          // 生成图片清单
-    "preview": "npx serve . -p 8080",        // 本地预览页面（需安装serve）
-    "prepare": "npm run generate"            // 安装依赖后自动生成清单
-  },
-  "keywords": ["edgeone", "pages", "image"],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "serve": "^14.2.1"                       // 本地预览用的静态服务器
+    "build": "node generate.js"
   }
 }
