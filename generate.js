@@ -1,13 +1,16 @@
 const fs = require("fs");
 const path = require("path");
 
+/* ================= 基础配置 ================= */
+
 const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp)$/i;
 const ROOT = process.cwd();
 
 const IGNORE_DIRS = [".git", ".github", "image"];
 const IGNORE_FILES = ["index.html", "images.json", "generate.js"];
 
-/* ---------- 扫描图片 ---------- */
+/* ================= 扫描图片 ================= */
+
 function scan(dir, base = "") {
   let list = [];
   for (const file of fs.readdirSync(dir)) {
@@ -35,7 +38,8 @@ function scan(dir, base = "") {
 const images = scan(ROOT).sort((a, b) => a.path.localeCompare(b.path));
 fs.writeFileSync("images.json", JSON.stringify(images, null, 2));
 
-/* ---------- 构建目录树 ---------- */
+/* ================= 构建目录树 ================= */
+
 function buildTree(list) {
   const tree = {};
   list.forEach(img => {
@@ -51,7 +55,8 @@ function buildTree(list) {
 
 const tree = buildTree(images);
 
-/* ---------- 样式 ---------- */
+/* ================= 样式 ================= */
+
 const baseStyle = `
 :root{
   --bg:#0d1117;
@@ -59,7 +64,7 @@ const baseStyle = `
   --border:#30363d;
   --text:#c9d1d9;
   --muted:#8b949e;
-  --accent:#2f81f7;
+  --hover:#21262d;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui;background:var(--bg);color:var(--text)}
@@ -69,22 +74,19 @@ img{display:block;max-width:100%}
 ::-webkit-scrollbar-thumb{background:#30363d;border-radius:8px}
 `;
 
-/* ---------- 目录树 HTML ---------- */
+/* ================= 目录树 HTML ================= */
+
 function treeHTML(node) {
   return Object.entries(node).map(([k, v]) => {
     if (v.path) {
       return `
       <div class="tree-file" data-path="${v.path}">
-        <span class="icon">🖼</span>
-        <span class="name">${k}</span>
+        🖼 <span>${k}</span>
       </div>`;
     }
     return `
     <div class="tree-dir">
-      <div class="tree-dir-title">
-        <span class="icon">📁</span>
-        <span>${k}</span>
-      </div>
+      <div class="tree-dir-title">📁 ${k}</div>
       <div class="tree-children">
         ${treeHTML(v)}
       </div>
@@ -92,7 +94,8 @@ function treeHTML(node) {
   }).join("");
 }
 
-/* ---------- index.html ---------- */
+/* ================= index.html ================= */
+
 const indexHTML = `
 <!doctype html>
 <html>
@@ -131,47 +134,34 @@ ${baseStyle}
 }
 
 /* 目录树 */
-.tree-dir-title,
-.tree-file{
-  display:flex;
-  align-items:center;
-  gap:6px;
+.tree-dir-title,.tree-file{
   padding:6px 8px;
   border-radius:6px;
   cursor:pointer;
 }
-.tree-file:hover,
-.tree-dir-title:hover{
-  background:#21262d;
+.tree-dir-title:hover,.tree-file:hover{
+  background:var(--hover);
 }
 .tree-children{
   margin-left:14px;
-  border-left:1px dashed #30363d;
+  border-left:1px dashed var(--border);
   padding-left:8px;
-  overflow:hidden;
-  transition:all .25s ease;
 }
 .tree-dir.collapsed .tree-children{
-  max-height:0;
-  opacity:0;
-}
-.tree-file .name{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  display:none;
 }
 </style>
 </head>
 <body>
 <div class="layout">
-  <aside class="sidebar" id="tree">
+  <aside class="sidebar">
     ${treeHTML(tree)}
   </aside>
   <main class="main">
     <div class="grid">
       ${images.map(i=>`
       <div class="card">
-        <a href="image/?path=${encodeURIComponent(i.path)}">
+        <a href="/image/?path=${encodeURIComponent(i.path)}">
           <img src="${i.path}" loading="lazy">
         </a>
         <div class="name">${i.name}</div>
@@ -185,7 +175,7 @@ document.querySelectorAll(".tree-dir-title").forEach(t=>{
   t.onclick=()=>t.parentElement.classList.toggle("collapsed");
 });
 document.querySelectorAll(".tree-file").forEach(f=>{
-  f.onclick=()=>location.href="image/?path="+encodeURIComponent(f.dataset.path);
+  f.onclick=()=>location.href="/image/?path="+encodeURIComponent(f.dataset.path);
 });
 </script>
 </body>
@@ -194,7 +184,8 @@ document.querySelectorAll(".tree-file").forEach(f=>{
 
 fs.writeFileSync("index.html", indexHTML);
 
-/* ---------- 单图页 ---------- */
+/* ================= 单图页 ================= */
+
 fs.mkdirSync("image", { recursive: true });
 
 const imageHTML = `
@@ -219,6 +210,7 @@ ${baseStyle}
   color:var(--text);
   padding:6px 10px;
   border-radius:6px;
+  cursor:pointer;
 }
 .info{font-size:13px;color:var(--muted)}
 </style>
@@ -237,23 +229,33 @@ ${baseStyle}
 <script>
 const images=${JSON.stringify(images)};
 const q=new URLSearchParams(location.search);
-const p=q.get("path");
+const p=decodeURIComponent(q.get("path")||"");
 const i=images.findIndex(x=>x.path===p);
 const img=document.getElementById("img");
 const info=document.getElementById("info");
+
 if(i>=0){
   img.src=p;
   img.onload=()=>info.textContent=
     images[i].name+" | "+
     img.naturalWidth+"×"+img.naturalHeight+" | "+
     (images[i].size/1024).toFixed(1)+" KB";
+}else{
+  info.textContent="图片不存在";
 }
-function prev(){if(i>0)location.href="image/?path="+encodeURIComponent(images[i-1].path)}
-function next(){if(i<images.length-1)location.href="image/?path="+encodeURIComponent(images[i+1].path)}
+
+function prev(){
+  if(i>0)
+    location.href="/image/?path="+encodeURIComponent(images[i-1].path);
+}
+function next(){
+  if(i<images.length-1)
+    location.href="/image/?path="+encodeURIComponent(images[i+1].path);
+}
 document.onkeydown=e=>{
   if(e.key==="ArrowLeft")prev();
   if(e.key==="ArrowRight")next();
-}
+};
 </script>
 </body>
 </html>
@@ -261,4 +263,4 @@ document.onkeydown=e=>{
 
 fs.writeFileSync("image/index.html", imageHTML);
 
-console.log("✔ UI polished & generated");
+console.log("✔ Site generated (stable)");
