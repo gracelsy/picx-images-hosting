@@ -3,7 +3,8 @@ const fs = require("fs");
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
 const ROOT = "./";
 
-const images = fs.readdirSync(ROOT)
+const images = fs
+  .readdirSync(ROOT)
   .filter(f => IMAGE_EXT.test(f))
   .sort((a, b) => a.localeCompare(b));
 
@@ -72,12 +73,12 @@ function render() {
 
   for (const f of items) {
     grid.innerHTML += \`
-    <div class="card">
-      <img src="\${f}" loading="lazy">
-      <button onclick="navigator.clipboard.writeText(location.origin + '/' + '\${f}')">
-        复制链接
-      </button>
-    </div>\`;
+      <div class="card">
+        <img src="\${f}" loading="lazy">
+        <button onclick="navigator.clipboard.writeText(location.origin + '/' + '\${f}')">
+          复制链接
+        </button>
+      </div>\`;
   }
 
   renderPagination();
@@ -92,5 +93,16 @@ function renderPagination() {
     const btn = document.createElement('button');
     btn.textContent = i;
     if (i === page) btn.disabled = true;
-    btn.onclick = () => { page = i; render(); };
-    p.a
+    btn.onclick = () => {
+      page = i;
+      render();
+    };
+    p.appendChild(btn);
+  }
+}
+</script>
+
+</body>
+</html>`;
+
+fs.writeFileSync("index.html", html);
