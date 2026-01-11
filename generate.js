@@ -1,4 +1,4 @@
-import fs from "fs";
+const fs = require("fs");
 
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
 const ROOT = "./";
@@ -93,12 +93,4 @@ function renderPagination() {
     btn.textContent = i;
     if (i === page) btn.disabled = true;
     btn.onclick = () => { page = i; render(); };
-    p.appendChild(btn);
-  }
-}
-</script>
-
-</body>
-</html>`;
-
-fs.writeFileSync("index.html", html);
+    p.a
