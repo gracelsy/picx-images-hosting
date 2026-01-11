@@ -1,334 +1,243 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片浏览主页</title>
-    <style>
-        /* 全局样式重置 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EdgeOne Pages 图片展示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", sans-serif;
+    }
 
-        body {
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
+    body {
+      background-color: #f5f7fa;
+      padding: 20px;
+    }
 
-        /* 页面标题 */
-        .page-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-            font-size: 2.2rem;
-            font-weight: 600;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        /* 图片容器 */
-        .image-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
 
-        /* 图片卡片样式 */
-        .image-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
 
-        .image-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
 
-        /* 图片预览 */
-        .image-preview {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            cursor: pointer;
-        }
+    /* 图片画廊 */
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
 
-        /* 图片信息 */
-        .image-info {
-            padding: 15px;
-            text-align: center;
-        }
+    /* 图片卡片 */
+    .image-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
 
-        .image-name {
-            color: #555;
-            font-size: 1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .image-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
 
-        /* 空状态提示 */
-        .empty-state {
-            text-align: center;
-            color: #888;
-            font-size: 1.2rem;
-            padding: 50px 0;
-        }
+    .image-preview {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      cursor: pointer;
+    }
 
-        /* 图片查看器（模态框） */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
+    .image-info {
+      padding: 15px;
+      text-align: center;
+    }
 
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-        }
+    .image-name {
+      font-size: 14px;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+    }
 
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
+    .image-size {
+      font-size: 12px;
+      color: #999;
+    }
 
-        .close-modal:hover {
-            color: #ccc;
-        }
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      color: #888;
+      font-size: 16px;
+      padding: 80px 0;
+    }
 
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .image-gallery {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-            
-            .page-title {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
+    /* 大图预览模态框 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+    }
+
+    .close-modal:hover {
+      color: #ccc;
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+      .image-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+      }
+      .image-preview {
+        height: 140px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1 class="page-title">本地图片浏览</h1>
-    
-    <!-- 图片画廊容器 -->
+  <div class="container">
+    <div class="header">
+      <h1>腾讯云 EdgeOne Pages 图片展示</h1>
+      <p>共 <span id="imageCount">0</span> 张图片</p>
+    </div>
+
     <div class="image-gallery" id="imageGallery"></div>
-    
-    <!-- 空状态提示 -->
-    <div class="empty-state" id="emptyState" style="display: none;">
-        暂无图片可展示，请将图片文件放在此HTML文件的同目录下
+    <div class="empty-state" id="emptyState">暂无图片可展示</div>
+
+    <!-- 大图预览框 -->
+    <div class="modal" id="previewModal">
+      <span class="close-modal" id="closeModal">&times;</span>
+      <img class="modal-img" id="modalImg">
     </div>
-    
-    <!-- 图片查看模态框 -->
-    <div class="modal" id="imageModal">
-        <span class="close-modal" id="closeModal">&times;</span>
-        <img class="modal-content" id="modalImage">
-    </div>
+  </div>
 
-    <script>
-        // 定义支持的图片格式
-        const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-        
-        // 获取DOM元素
-        const imageGallery = document.getElementById('imageGallery');
-        const emptyState = document.getElementById('emptyState');
-        const imageModal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const closeModal = document.getElementById('closeModal');
+  <script>
+    // DOM 元素
+    const imageGallery = document.getElementById('imageGallery');
+    const emptyState = document.getElementById('emptyState');
+    const imageCount = document.getElementById('imageCount');
+    const previewModal = document.getElementById('previewModal');
+    const modalImg = document.getElementById('modalImg');
+    const closeModal = document.getElementById('closeModal');
 
-        // 初始化函数：读取并展示图片
-        async function initImageGallery() {
-            try {
-                // 注意：浏览器的安全策略限制了直接读取本地文件系统
-                // 这里提供两种方案：
-                
-                // 方案1：手动输入图片文件名（推荐，无跨域/安全限制）
-                // 你需要在这里手动列出同目录下的图片文件名
-                const imageFiles = [
-                    // 示例：取消注释并添加你的图片文件名
-                    // 'photo1.jpg',
-                    // 'photo2.png',
-                    // 'photo3.webp'
-                ];
+    // 加载图片清单并渲染
+    async function loadAndRenderImages() {
+      try {
+        // 读取图片清单
+        const response = await fetch('/image-list.json');
+        const images = await response.json();
 
-                // 方案2：使用input file让用户选择图片（无需手动输入）
-                // 取消下面的注释来启用此方案
-                /*
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.multiple = true;
-                input.accept = SUPPORTED_FORMATS.join(',');
-                input.onchange = function(e) {
-                    displayImages(e.target.files);
-                };
-                input.click();
-                return;
-                */
+        // 更新图片数量
+        imageCount.textContent = images.length;
 
-                // 展示手动配置的图片
-                if (imageFiles.length === 0) {
-                    showEmptyState();
-                    return;
-                }
-                
-                displayImageList(imageFiles);
-                
-            } catch (error) {
-                console.error('加载图片失败:', error);
-                showEmptyState();
-            }
+        // 显示/隐藏空状态
+        if (images.length === 0) {
+          imageGallery.style.display = 'none';
+          emptyState.style.display = 'block';
+          return;
+        } else {
+          imageGallery.style.display = 'grid';
+          emptyState.style.display = 'none';
         }
 
-        // 展示图片列表
-        function displayImageList(imageFiles) {
-            imageGallery.innerHTML = '';
-            
-            imageFiles.forEach(fileName => {
-                // 检查文件格式是否支持
-                const ext = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-                if (!SUPPORTED_FORMATS.includes(ext)) {
-                    return;
-                }
+        // 渲染图片卡片
+        imageGallery.innerHTML = images.map(img => `
+          <div class="image-card">
+            <img 
+              src="${img.url}" 
+              alt="${img.name}" 
+              class="image-preview"
+              data-url="${img.url}"
+            >
+            <div class="image-info">
+              <p class="image-name" title="${img.name}">${img.name}</p>
+              <p class="image-size">${img.size}</p>
+            </div>
+          </div>
+        `).join('');
 
-                // 创建图片卡片
-                const card = document.createElement('div');
-                card.className = 'image-card';
-
-                // 创建图片元素
-                const img = document.createElement('img');
-                img.className = 'image-preview';
-                img.src = fileName;
-                img.alt = fileName;
-                
-                // 图片加载失败处理
-                img.onerror = function() {
-                    this.alt = `无法加载: ${fileName}`;
-                    this.style.backgroundColor = '#eee';
-                };
-
-                // 点击图片查看大图
-                img.addEventListener('click', () => {
-                    modalImage.src = fileName;
-                    imageModal.style.display = 'flex';
-                });
-
-                // 创建图片信息区域
-                const info = document.createElement('div');
-                info.className = 'image-info';
-                
-                const name = document.createElement('p');
-                name.className = 'image-name';
-                name.textContent = fileName;
-                
-                info.appendChild(name);
-                card.appendChild(img);
-                card.appendChild(info);
-                
-                imageGallery.appendChild(card);
-            });
-
-            // 如果没有可展示的图片，显示空状态
-            if (imageGallery.children.length === 0) {
-                showEmptyState();
-            }
-        }
-
-        // 展示用户选择的图片（方案2使用）
-        function displayImages(files) {
-            if (files.length === 0) {
-                showEmptyState();
-                return;
-            }
-
-            imageGallery.innerHTML = '';
-            
-            Array.from(files).forEach(file => {
-                // 检查文件类型
-                if (!file.type.startsWith('image/')) {
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // 创建图片卡片
-                    const card = document.createElement('div');
-                    card.className = 'image-card';
-
-                    // 创建图片元素
-                    const img = document.createElement('img');
-                    img.className = 'image-preview';
-                    img.src = e.target.result;
-                    img.alt = file.name;
-
-                    // 点击图片查看大图
-                    img.addEventListener('click', () => {
-                        modalImage.src = e.target.result;
-                        imageModal.style.display = 'flex';
-                    });
-
-                    // 创建图片信息区域
-                    const info = document.createElement('div');
-                    info.className = 'image-info';
-                    
-                    const name = document.createElement('p');
-                    name.className = 'image-name';
-                    name.textContent = file.name;
-                    
-                    info.appendChild(name);
-                    card.appendChild(img);
-                    card.appendChild(info);
-                    
-                    imageGallery.appendChild(card);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // 显示空状态
-        function showEmptyState() {
-            imageGallery.style.display = 'none';
-            emptyState.style.display = 'block';
-        }
-
-        // 关闭图片查看模态框
-        closeModal.addEventListener('click', () => {
-            imageModal.style.display = 'none';
+        // 绑定图片点击预览事件
+        document.querySelectorAll('.image-preview').forEach(img => {
+          img.addEventListener('click', () => {
+            modalImg.src = img.dataset.url;
+            previewModal.style.display = 'flex';
+          });
         });
 
-        // 点击模态框背景关闭
-        imageModal.addEventListener('click', (e) => {
-            if (e.target === imageModal) {
-                imageModal.style.display = 'none';
-            }
-        });
+      } catch (error) {
+        console.error('加载图片失败：', error);
+        imageGallery.style.display = 'none';
+        emptyState.textContent = '加载图片失败，请检查配置';
+        emptyState.style.display = 'block';
+      }
+    }
 
-        // 按ESC键关闭模态框
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && imageModal.style.display === 'flex') {
-                imageModal.style.display = 'none';
-            }
-        });
+    // 关闭预览模态框
+    closeModal.addEventListener('click', () => {
+      previewModal.style.display = 'none';
+    });
 
-        // 页面加载完成后初始化
-        window.addEventListener('DOMContentLoaded', initImageGallery);
-    </script>
+    // 点击模态框背景关闭
+    previewModal.addEventListener('click', (e) => {
+      if (e.target === previewModal) {
+        previewModal.style.display = 'none';
+      }
+    });
+
+    // ESC 键关闭模态框
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && previewModal.style.display === 'flex') {
+        previewModal.style.display = 'none';
+      }
+    });
+
+    // 页面加载完成后执行
+    window.addEventListener('DOMContentLoaded', loadAndRenderImages);
+  </script>
 </body>
 </html>
