@@ -1,12 +1,8 @@
-name: Generate Image Index
+name: build
 
 on:
   push:
-    branches:
-      - "*"
-
-permissions:
-  contents: write
+    branches: [ main ]
 
 jobs:
   build:
@@ -23,6 +19,6 @@ jobs:
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add index.html images.json
-          git commit -m "auto: update image index" || echo "no change"
+          git add .
+          git commit -m "auto: generate pages" || echo "no change"
           git push
