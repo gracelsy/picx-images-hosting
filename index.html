@@ -2,117 +2,97 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>Image Preview</title>
+<title>Images</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:#0d1117;
-  color:#c9d1d9;
-}
-.viewer{
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-}
-.viewer img{
-  max-width:92vw;
-  max-height:92vh;
-  object-fit:contain;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-  border-radius:8px;
-  background:#000;
-}
-.loading{
-  position:absolute;
-  color:#8b949e;
-  font-size:14px;
-}
-.nav{
-  position:fixed;
-  bottom:20px;
-  display:flex;
-  gap:10px;
-}
-button{
-  background:#21262d;
-  color:#c9d1d9;
-  border:1px solid #30363d;
-  padding:6px 12px;
-  border-radius:6px;
-  cursor:pointer;
-}
-button:hover{background:#30363d}
-.error{
-  color:#f85149;
-}
+body{margin:0;display:flex;height:100vh;background:#0d1117;color:#c9d1d9;font-family:system-ui}
+aside{width:260px;background:#161b22;padding:10px;overflow:auto}
+main{flex:1;padding:16px;overflow:auto}
+.tree div{padding:4px 8px;border-radius:6px;cursor:pointer}
+.tree div:hover{background:#21262d}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.card{background:#161b22;border-radius:10px;padding:8px}
+.card img{width:100%;height:140px;object-fit:contain;background:#000;border-radius:6px}
+.card span{display:block;font-size:13px;margin-top:6px;word-break:break-all}
+.ctx{position:fixed;display:none;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:6px;z-index:999}
+.ctx div{padding:6px 10px;border-radius:6px;cursor:pointer}
+.ctx div:hover{background:#21262d}
 </style>
 </head>
 <body>
 
-<div class="viewer" id="viewer">
-  <div class="loading" id="loading">加载中…</div>
-  <img id="img" style="display:none">
-</div>
+<aside>
+  <div class="tree" id="tree"></div>
+</aside>
 
-<div class="nav">
-  <button id="prev">上一张</button>
-  <button id="next">下一张</button>
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<div id="ctx" class="ctx">
+  <div onclick="copyUrl()">复制图片链接</div>
+  <div onclick="copyMd()">复制 Markdown</div>
+  <div onclick="openNew()">新标签打开</div>
+  <div onclick="preview()">预览</div>
 </div>
 
 <script>
-const params = new URLSearchParams(location.search);
-const rawPath = params.get("path");
+const BASE = location.origin + "/";
+let ctxPath = "";
 
-if(!rawPath){
-  document.body.innerHTML="<div class='error'>缺少图片路径</div>";
-  throw "";
+fetch("/data.json").then(r=>r.json()).then(list=>{
+  renderTree(list);
+  renderGrid(list);
+});
+
+function renderTree(list){
+  const dirs = new Set(["/"]);
+  list.forEach(i=>{
+    const d = i.path.split("/").slice(0,-1).join("/") || "/";
+    dirs.add(d);
+  });
+  const tree = document.getElementById("tree");
+  [...dirs].sort().forEach(d=>{
+    const div=document.createElement("div");
+    div.textContent=d;
+    div.onclick=()=>renderGrid(
+      d=="/"?list:list.filter(i=>i.path.startsWith(d+"/"))
+    );
+    tree.appendChild(div);
+  });
 }
 
-const path = decodeURIComponent(rawPath);
-const img = document.getElementById("img");
-const loading = document.getElementById("loading");
-
-img.onload = ()=>{
-  loading.style.display="none";
-  img.style.display="block";
-};
-img.onerror = ()=>{
-  loading.textContent="图片加载失败";
-};
-
-img.src = "/" + path;
-
-fetch("/data.json")
-  .then(r=>r.json())
-  .then(list=>{
-    const idx = list.findIndex(i=>i.path===path);
-    document.getElementById("prev").onclick = ()=>{
-      if(idx>0) location.href="/image/?path="+encodeURIComponent(list[idx-1].path);
-    };
-    document.getElementById("next").onclick = ()=>{
-      if(idx<list.length-1) location.href="/image/?path="+encodeURIComponent(list[idx+1].path);
-    };
+function renderGrid(list){
+  const g=document.getElementById("grid");
+  g.innerHTML="";
+  list.forEach(i=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=\`
+      <img src="/\${i.path}" data-path="\${i.path}">
+      <span>\${i.name}</span>\`;
+    d.querySelector("img").onclick=()=>
+      location.href="/image/?path="+encodeURIComponent(i.path);
+    g.appendChild(d);
   });
+}
 
-/* 点击空白返回 */
-document.getElementById("viewer").addEventListener("click",e=>{
-  if(e.target.id==="viewer"){
-    history.back();
-  }
+/* 右键 */
+document.addEventListener("contextmenu",e=>{
+  const img=e.target.closest("img[data-path]");
+  if(!img) return;
+  e.preventDefault();
+  ctxPath=img.dataset.path;
+  ctx.style.display="block";
+  ctx.style.left=e.clientX+"px";
+  ctx.style.top=e.clientY+"px";
 });
+document.addEventListener("click",()=>ctx.style.display="none");
 
-/* 键盘支持 */
-document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft") document.getElementById("prev").click();
-  if(e.key==="ArrowRight") document.getElementById("next").click();
-  if(e.key==="Escape") history.back();
-});
+function copyUrl(){navigator.clipboard.writeText(BASE+ctxPath)}
+function copyMd(){navigator.clipboard.writeText("![]("+BASE+ctxPath+")")}
+function openNew(){window.open(BASE+ctxPath,"_blank")}
+function preview(){location.href="/image/?path="+encodeURIComponent(ctxPath)}
 </script>
 
 </body>
