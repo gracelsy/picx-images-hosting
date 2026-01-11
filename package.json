@@ -1,12 +1,7 @@
 {
-  "name": "edgeone-image-gallery",
-  "type": "module",
-  "private": true,
   "scripts": {
-    "build": "node scripts/gen-tree.js && vite build",
+    "prebuild": "node scripts/scan-images.js",
+    "build": "vite build",
     "dev": "vite"
-  },
-  "devDependencies": {
-    "vite": "^5.0.0"
   }
 }
