@@ -6,14 +6,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 body{margin:0;display:flex;height:100vh;background:#0d1117;color:#c9d1d9;font-family:system-ui}
-aside{width:260px;background:#161b22;padding:10px;overflow:auto}
+aside{width:280px;background:#161b22;padding:10px;overflow:auto}
 main{flex:1;padding:16px;overflow:auto}
-.tree div{padding:4px 8px;border-radius:6px;cursor:pointer}
-.tree div:hover{background:#21262d}
+
+/* tree */
+.tree .node{cursor:pointer;padding:4px 6px;border-radius:6px;display:flex;align-items:center}
+.tree .node:hover{background:#21262d}
+.tree .children{margin-left:14px;overflow:hidden;max-height:0;transition:max-height .25s ease}
+.tree .open>.children{max-height:2000px}
+.tree .arrow{width:12px;display:inline-block}
+
+/* grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
 .card{background:#161b22;border-radius:10px;padding:8px}
 .card img{width:100%;height:140px;object-fit:contain;background:#000;border-radius:6px}
 .card span{display:block;font-size:13px;margin-top:6px;word-break:break-all}
+
+/* ctx */
 .ctx{position:fixed;display:none;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:6px;z-index:999}
 .ctx div{padding:6px 10px;border-radius:6px;cursor:pointer}
 .ctx div:hover{background:#21262d}
@@ -32,49 +41,83 @@ main{flex:1;padding:16px;overflow:auto}
 <div id="ctx" class="ctx">
   <div onclick="copyUrl()">复制图片链接</div>
   <div onclick="copyMd()">复制 Markdown</div>
-  <div onclick="openNew()">新标签打开</div>
   <div onclick="preview()">预览</div>
 </div>
 
 <script>
 const BASE = location.origin + "/";
+const params = new URLSearchParams(location.search);
+let currentDir = params.get("dir") || "/";
 let ctxPath = "";
 
 fetch("/data.json").then(r=>r.json()).then(list=>{
-  renderTree(list);
-  renderGrid(list);
+  window.IMAGES = list;
+  buildTree(list);
+  renderGrid();
 });
 
-function renderTree(list){
-  const dirs = new Set(["/"]);
+function buildTree(list){
+  const root = {};
   list.forEach(i=>{
-    const d = i.path.split("/").slice(0,-1).join("/") || "/";
-    dirs.add(d);
+    const parts = i.path.split("/");
+    let cur = root;
+    parts.slice(0,-1).forEach(p=>{
+      cur[p] = cur[p] || {};
+      cur = cur[p];
+    });
   });
-  const tree = document.getElementById("tree");
-  [...dirs].sort().forEach(d=>{
-    const div=document.createElement("div");
-    div.textContent=d;
-    div.onclick=()=>renderGrid(
-      d=="/"?list:list.filter(i=>i.path.startsWith(d+"/"))
-    );
-    tree.appendChild(div);
-  });
+  document.getElementById("tree").appendChild(renderNode("/", root));
 }
 
-function renderGrid(list){
+function renderNode(name, obj, full=""){
+  const wrap = document.createElement("div");
+  const node = document.createElement("div");
+  node.className="node";
+  const arrow = document.createElement("span");
+  arrow.className="arrow";
+  arrow.textContent = Object.keys(obj).length ? "▶" : "";
+  node.appendChild(arrow);
+  node.append(name);
+  wrap.appendChild(node);
+
+  const children = document.createElement("div");
+  children.className="children";
+
+  const path = full ? full+"/"+name : "";
+  const isOpen = currentDir.startsWith(path);
+  if(isOpen) wrap.classList.add("open");
+
+  node.onclick=()=>{
+    wrap.classList.toggle("open");
+    arrow.textContent = wrap.classList.contains("open")?"▼":"▶";
+    currentDir = path || "/";
+    history.replaceState(null,"","/?dir="+encodeURIComponent(currentDir));
+    renderGrid();
+    saveState();
+  };
+
+  Object.keys(obj).sort().forEach(k=>{
+    children.appendChild(renderNode(k,obj[k],path));
+  });
+
+  wrap.appendChild(children);
+  return wrap;
+}
+
+function renderGrid(){
   const g=document.getElementById("grid");
   g.innerHTML="";
-  list.forEach(i=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.innerHTML=\`
-      <img src="/\${i.path}" data-path="\${i.path}">
-      <span>\${i.name}</span>\`;
-    d.querySelector("img").onclick=()=>
-      location.href="/image/?path="+encodeURIComponent(i.path);
-    g.appendChild(d);
-  });
+  IMAGES.filter(i=>currentDir==="/"||i.path.startsWith(currentDir+"/"))
+    .forEach(i=>{
+      const d=document.createElement("div");
+      d.className="card";
+      d.innerHTML=\`
+        <img src="/\${i.path}" data-path="\${i.path}">
+        <span>\${i.name}</span>\`;
+      d.querySelector("img").onclick=()=>
+        location.href="/image/?path="+encodeURIComponent(i.path);
+      g.appendChild(d);
+    });
 }
 
 /* 右键 */
@@ -91,8 +134,11 @@ document.addEventListener("click",()=>ctx.style.display="none");
 
 function copyUrl(){navigator.clipboard.writeText(BASE+ctxPath)}
 function copyMd(){navigator.clipboard.writeText("![]("+BASE+ctxPath+")")}
-function openNew(){window.open(BASE+ctxPath,"_blank")}
 function preview(){location.href="/image/?path="+encodeURIComponent(ctxPath)}
+
+function saveState(){
+  localStorage.setItem("dir",currentDir);
+}
 </script>
 
 </body>
