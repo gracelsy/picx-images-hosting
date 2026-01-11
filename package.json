@@ -1,6 +1,6 @@
 {
   "name": "edgeone-image-gallery",
-  "type": "module"
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "node scripts/gen-tree.js && vite build",
