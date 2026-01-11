@@ -4,7 +4,7 @@ const path = require('path');
 // 支持的图片格式
 const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
 // 要排除的非图片文件（避免扫描脚本/页面文件）
-const EXCLUDE_FILES = ['index.html', 'generate.js', 'image-list.json', 'package.json'];
+const EXCLUDE_FILES = ['index.html', 'generate.js', 'image-list.json', 'package.json', 'package-lock.json'];
 // 输出的清单文件
 const OUTPUT_FILE = './image-list.json';
 
@@ -33,9 +33,9 @@ function generateImageList() {
 
     // 写入清单文件
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(imageList, null, 2), 'utf8');
-    console.log(`成功生成图片清单，共${imageList.length}张图片`);
+    console.log(`✅ 成功生成图片清单，共${imageList.length}张图片`);
   } catch (error) {
-    console.error('生成图片清单失败：', error);
+    console.error('❌ 生成图片清单失败：', error);
     // 生成空清单避免前端报错
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify([], null, 2), 'utf8');
   }
