@@ -8,7 +8,7 @@ const params = new URLSearchParams(location.search)
 const currentPath = params.get('path') || ''
 const page = parseInt(params.get('page') || '1', 10)
 
-const tree = await fetch('/file-tree.json').键，然后(r => r.json())
+const tree = await fetch('/file-tree.json').then(r => r.json())
 
 function findNode(list, path) {
   if (!path) return list
