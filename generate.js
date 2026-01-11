@@ -1,52 +1,68 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
 
-// 支持的图片格式
-const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-// 要排除的非图片文件（避免扫描脚本/页面文件）
-const EXCLUDE_FILES = ['index.html', 'generate.js', 'image-list.json', 'package.json', 'package-lock.json'];
-// 输出的清单文件
-const OUTPUT_FILE = './image-list.json';
+const ROOT = "./";
+const OUTPUT = "./index.html";
 
-// 读取根目录并生成图片清单
-function generateImageList() {
-  try {
-    // 读取根目录下所有文件
-    const files = fs.readdirSync('./');
-    const imageList = [];
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
 
-    // 过滤并整理图片信息
-    files.forEach(file => {
-      // 排除指定文件
-      if (EXCLUDE_FILES.includes(file)) return;
-      
-      // 过滤图片格式
-      const ext = path.extname(file).toLowerCase();
-      if (SUPPORTED_FORMATS.includes(ext)) {
-        imageList.push({
-          name: file,
-          url: `/${file}`,  // 根目录图片的URL
-          size: formatFileSize(fs.statSync(file).size)
-        });
-      }
-    });
+// 读取根目录文件
+const files = fs.readdirSync(ROOT)
+  .filter(f => IMAGE_EXT.test(f));
 
-    // 写入清单文件
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(imageList, null, 2), 'utf8');
-    console.log(`✅ 成功生成图片清单，共${imageList.length}张图片`);
-  } catch (error) {
-    console.error('❌ 生成图片清单失败：', error);
-    // 生成空清单避免前端报错
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify([], null, 2), 'utf8');
-  }
+const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>图片列表</title>
+<style>
+body {
+  font-family: system-ui, -apple-system;
+  background: #f5f5f5;
+  padding: 20px;
 }
-
-// 格式化文件大小
-function formatFileSize(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
 }
+.card {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+}
+img {
+  width: 100%;
+  border-radius: 4px;
+}
+input {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 12px;
+}
+button {
+  width: 100%;
+  margin-top: 6px;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
 
-// 执行脚本
-generateImageList();
+<h1>图片列表</h1>
+
+<div class="grid">
+${files.map(f => `
+<div class="card">
+  <img src="${f}" loading="lazy">
+  <input value="\${location.origin}/${f}" readonly>
+  <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">
+    复制链接
+  </button>
+</div>
+`).join("")}
+</div>
+
+</body>
+</html>`;
+
+fs.writeFileSync(OUTPUT, html);
