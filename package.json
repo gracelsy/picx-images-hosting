@@ -1,7 +1,0 @@
-{
-  "scripts": {
-    "prebuild": "node scripts/scan-images.js",
-    "build": "vite build",
-    "dev": "vite"
-  }
-}
